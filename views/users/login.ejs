@@ -1,0 +1,419 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<section class="nx-auth-layout">
+  
+  <div class="nx-form-side">
+    <div class="nx-form-wrapper nx-fade-in">
+      
+      <div class="nx-header-group">
+        <a href="/home" class="nx-back-btn">
+          <i class="fa-solid fa-arrow-left"></i> Back
+        </a>
+        <div class="nx-brand-logo">
+          <i class="fa-solid fa-sparkles"></i>
+        </div>
+        <h2 class="nx-heading">Welcome Back</h2>
+        <p class="nx-subheading">Enter your credentials to access your AiNexus dashboard.</p>
+      </div>
+
+      <form action="/login" method="POST" class="nx-login-form">
+        
+        <div class="nx-input-block">
+          <label class="nx-label" for="username">Username</label>
+          <div class="nx-input-with-icon">
+            <i class="fa-regular fa-user nx-icon"></i>
+            <input 
+              type="text" 
+              id="username" 
+              name="username" 
+              class="nx-field"
+              placeholder="e.g. ai_creator_99" 
+              required 
+              autofocus
+            />
+          </div>
+        </div>
+
+        <div class="nx-input-block">
+          <label class="nx-label" for="password">Password</label>
+          <div class="nx-input-with-icon">
+            <i class="fa-solid fa-lock nx-icon"></i>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="nx-field"
+              placeholder="••••••••" 
+              required 
+            />
+          </div>
+        </div>
+
+        <div class="nx-options-row">
+          <label class="nx-remember-box">
+            <input type="checkbox" name="rememberMe" class="nx-checkbox" />
+            <span class="nx-check-text">Keep me logged in</span>
+          </label>
+          <a href="#" class="nx-recovery-link">Recover Password</a>
+        </div>
+
+        <button type="submit" class="nx-submit-action">
+          Access Dashboard <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+      </form>
+
+      <div class="nx-register-prompt">
+        New to AiNexus? <a href="/signup" class="nx-highlight-link">Create a free account</a>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="nx-visual-side">
+    <div class="nx-visual-overlay"></div>
+    <div class="nx-visual-content nx-fade-up">
+      <h3 class="nx-visual-title">The world's leading AI directory.</h3>
+      <p class="nx-visual-desc">Join thousands of creators discovering the tools that will shape the future of technology, art, and business.</p>
+      <div class="nx-glass-stat">
+        <i class="fa-solid fa-chart-line nx-stat-icon"></i>
+        <div>
+          <span class="nx-stat-number">5,000+</span>
+          <span class="nx-stat-label">Active AI Tools Indexed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<style>
+  /* Reset padding from boilerplate just for this page */
+  body {
+    padding-top: 0 !important;
+    background-color: #050505;
+  }
+
+  /* Full viewport split layout */
+  .nx-auth-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #e4e4e7;
+    background: #09090b;
+  }
+
+  /* --- Left Form Column --- */
+  .nx-form-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    background: #050505;
+    position: relative;
+    z-index: 2;
+    box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+  }
+
+  .nx-form-wrapper {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .nx-header-group {
+    margin-bottom: 2rem;
+  }
+
+  .nx-back-btn {
+    display: inline-block;
+    color: #71717a;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    transition: color 0.3s;
+  }
+  
+  .nx-back-btn:hover {
+    color: #ffffff;
+  }
+
+  .nx-brand-logo {
+    width: 48px;
+    height: 48px;
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #a855f7;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .nx-heading {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+  }
+
+  .nx-subheading {
+    color: #a1a1aa;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  /* Form Elements */
+  .nx-input-block {
+    margin-bottom: 1.5rem;
+  }
+
+  .nx-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #d4d4d8;
+  }
+
+  .nx-input-with-icon {
+    position: relative;
+  }
+
+  .nx-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #52525b;
+    transition: color 0.3s;
+  }
+
+  .nx-field {
+    width: 100%;
+    background: #0f0f11;
+    border: 1px solid #27272a;
+    border-radius: 10px;
+    padding: 12px 15px 12px 42px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+  }
+
+  .nx-field::placeholder {
+    color: #52525b;
+  }
+
+  .nx-field:focus {
+    outline: none;
+    border-color: #6366f1;
+    background: #18181b;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+
+  .nx-field:focus + .nx-icon,
+  .nx-input-with-icon:focus-within .nx-icon {
+    color: #6366f1;
+  }
+
+  /* Options Row */
+  .nx-options-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .nx-remember-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .nx-checkbox {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #3f3f46;
+    border-radius: 4px;
+    background: #0f0f11;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  .nx-checkbox:checked {
+    background: #6366f1;
+    border-color: #6366f1;
+  }
+
+  .nx-checkbox:checked::after {
+    content: '✓';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    color: white;
+    font-size: 10px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .nx-check-text {
+    font-size: 0.9rem;
+    color: #a1a1aa;
+  }
+
+  .nx-recovery-link {
+    font-size: 0.9rem;
+    color: #818cf8;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+
+  .nx-recovery-link:hover {
+    color: #a855f7;
+  }
+
+  /* Submit */
+  .nx-submit-action {
+    width: 100%;
+    background: #ffffff;
+    color: #050505;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .nx-submit-action:hover {
+    background: #d4d4d8;
+    transform: translateY(-2px);
+  }
+
+  .nx-register-prompt {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    color: #71717a;
+  }
+
+  .nx-highlight-link {
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 5px;
+    transition: color 0.3s;
+  }
+  
+  .nx-highlight-link:hover {
+    color: #a855f7;
+  }
+
+  /* --- Right Visual Column --- */
+  .nx-visual-side {
+    flex: 1.2;
+    position: relative;
+    background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: flex-end;
+    padding: 60px;
+  }
+
+  .nx-visual-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, #000000 0%, rgba(0,0,0,0.3) 50%, rgba(99,102,241,0.2) 100%);
+    z-index: 1;
+  }
+
+  .nx-visual-content {
+    position: relative;
+    z-index: 2;
+    max-width: 500px;
+  }
+
+  .nx-visual-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+
+  .nx-visual-desc {
+    font-size: 1.1rem;
+    color: #d4d4d8;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  .nx-glass-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 15px 25px;
+    border-radius: 16px;
+  }
+
+  .nx-stat-icon {
+    font-size: 1.5rem;
+    color: #facc15;
+  }
+
+  .nx-stat-number {
+    display: block;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: #ffffff;
+  }
+
+  .nx-stat-label {
+    font-size: 0.85rem;
+    color: #a1a1aa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Animations */
+  .nx-fade-in { animation: nxFadeIn 0.8s ease forwards; }
+  .nx-fade-up { opacity: 0; animation: nxFadeUp 0.8s ease 0.3s forwards; }
+
+  @keyframes nxFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes nxFadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Responsive: Hide Visual Column on smaller screens */
+  @media (max-width: 991px) {
+    .nx-visual-side { display: none; }
+    .nx-form-side { padding: 60px 20px; }
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Hide the floating navbar on the login page to maintain the pure split-screen aesthetic
+    const navbar = document.getElementById("ainexusNav");
+    if (navbar) {
+      navbar.style.display = 'none';
+    }
+  });
+</script>

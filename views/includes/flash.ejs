@@ -1,0 +1,215 @@
+<% if (success && success.length > 0) { %>
+  <div class="ainexus-toast-container">
+    <div class="ainexus-toast toast-success slide-in-right" role="alert">
+      <div class="toast-icon-wrapper">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="toast-message">
+        <strong>Success</strong>
+        <span><%= success %></span>
+      </div>
+      <button type="button" class="toast-close-btn" onclick="dismissToast(this)">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="toast-progress"></div>
+    </div>
+  </div>
+<% } %>
+
+<% if (error && error.length > 0) { %>
+  <div class="ainexus-toast-container">
+    <div class="ainexus-toast toast-error slide-in-right" role="alert">
+      <div class="toast-icon-wrapper">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div class="toast-message">
+        <strong>Error</strong>
+        <span><%= error %></span>
+      </div>
+      <button type="button" class="toast-close-btn" onclick="dismissToast(this)">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="toast-progress"></div>
+    </div>
+  </div>
+<% } %>
+
+<style>
+  /* Container positioning - pushed down slightly to avoid the floating navbar */
+  .ainexus-toast-container {
+    position: fixed;
+    top: 100px;
+    right: 30px;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    pointer-events: none; /* Allows clicking through the container */
+  }
+
+  /* Base Glassmorphic Toast Card */
+  .ainexus-toast {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(15, 15, 15, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 16px 20px;
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    min-width: 320px;
+    max-width: 400px;
+    overflow: hidden;
+    pointer-events: auto; /* Re-enables clicking on the toast itself */
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  /* Success State Styling */
+  .toast-success {
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+  .toast-success .toast-icon-wrapper i {
+    color: #10b981; /* Emerald Green */
+    text-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+  }
+  .toast-success .toast-progress {
+    background: linear-gradient(90deg, #059669, #10b981);
+  }
+
+  /* Error State Styling */
+  .toast-error {
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  .toast-error .toast-icon-wrapper i {
+    color: #ef4444; /* Rose Red */
+    text-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+  }
+  .toast-error .toast-progress {
+    background: linear-gradient(90deg, #b91c1c, #ef4444);
+  }
+
+  /* Inner Layout */
+  .toast-icon-wrapper {
+    font-size: 1.5rem;
+    margin-right: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .toast-message {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+
+  .toast-message strong {
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    margin-bottom: 2px;
+  }
+
+  .toast-message span {
+    color: #a1a1aa;
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  /* Close Button */
+  .toast-close-btn {
+    background: transparent;
+    border: none;
+    color: #71717a;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 15px;
+    transition: color 0.2s ease;
+  }
+
+  .toast-close-btn:hover {
+    color: #ffffff;
+  }
+
+  /* Animated Progress Bar at the bottom */
+  .toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    animation: progressShrink 4s linear forwards;
+  }
+
+  /* Animations */
+  .slide-in-right {
+    animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  .fade-out-right {
+    animation: fadeOut 0.5s ease forwards;
+  }
+
+  @keyframes slideIn {
+    0% { transform: translateX(120%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes fadeOut {
+    0% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(120%); opacity: 0; }
+  }
+
+  @keyframes progressShrink {
+    0% { width: 100%; }
+    100% { width: 0%; }
+  }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    .ainexus-toast-container {
+      right: 50%;
+      transform: translateX(50%);
+      top: 80px;
+      width: 90%;
+    }
+    .ainexus-toast {
+      min-width: 100%;
+    }
+    @keyframes slideIn {
+      0% { transform: translateY(-50px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fadeOut {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-50px); opacity: 0; }
+    }
+  }
+</style>
+
+<script>
+  // Function to manually dismiss toast
+  function dismissToast(button) {
+    const toast = button.closest('.ainexus-toast');
+    toast.classList.remove('slide-in-right');
+    toast.classList.add('fade-out-right');
+    setTimeout(() => toast.remove(), 500); // Remove from DOM after animation
+  }
+
+  // Auto-dismiss all toasts after 4 seconds (matches the progress bar CSS animation)
+  document.addEventListener("DOMContentLoaded", () => {
+    const toasts = document.querySelectorAll('.ainexus-toast');
+    toasts.forEach(toast => {
+      setTimeout(() => {
+        if (document.body.contains(toast)) {
+          toast.classList.remove('slide-in-right');
+          toast.classList.add('fade-out-right');
+          setTimeout(() => toast.remove(), 500);
+        }
+      }, 4000); // 4000ms = 4 seconds
+    });
+  });
+</script>

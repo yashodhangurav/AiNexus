@@ -1,0 +1,346 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<section class="signup-section">
+  <div class="ambient-glow-signup-1"></div>
+  <div class="ambient-glow-signup-2"></div>
+
+  <div class="signup-container fade-in-up">
+    <div class="signup-header">
+      <div class="logo-icon-wrapper-large">
+        <i class="fa-solid fa-sparkles"></i>
+      </div>
+      <h2>Join AiNexus</h2>
+      <p>Create your account to rent, share, or explore the network.</p>
+    </div>
+
+    <form action="/signup" method="POST" novalidate class="needs-validation ainexus-auth-form">
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="username">Username <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user input-icon"></i>
+            <input type="text" id="username" name="username" placeholder="Choose a username" required autofocus />
+            <div class="invalid-feedback">Please enter a username.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-envelope input-icon"></i>
+            <input type="email" id="email" name="email" placeholder="name@example.com" required />
+            <div class="invalid-feedback">Please provide a valid email.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-phone input-icon"></i>
+            <input type="text" id="phone" name="phone" placeholder="10-digit phone number" required />
+            <div class="invalid-feedback">Please enter your phone number.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="password" name="password" placeholder="Create a secure password" required />
+            <div class="invalid-feedback">Please enter a password.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button type="submit" class="btn-auth-glow mt-3">
+          <span>Create Account</span>
+          <i class="fa-solid fa-user-plus ms-2"></i>
+        </button>
+      </div>
+
+      <div class="auth-footer">
+        <p>Already have an account? <a href="/login">Log in here</a></p>
+      </div>
+
+    </form>
+  </div>
+</section>
+
+<style>
+  /* Section & Container Setup */
+  .signup-section {
+    position: relative;
+    min-height: 100vh;
+    background-color: #050505;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 20px 60px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  /* Ambient Background Orbs */
+  .ambient-glow-signup-1 {
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+    filter: blur(50px);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .ambient-glow-signup-2 {
+    position: absolute;
+    bottom: 10%;
+    right: 20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, transparent 70%);
+    filter: blur(60px);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Main Glass Card */
+  .signup-container {
+    position: relative;
+    z-index: 2;
+    background: rgba(15, 15, 15, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(168, 85, 247, 0.1);
+    width: 100%;
+    max-width: 750px;
+    padding: 40px 50px;
+  }
+
+  /* Header Styling */
+  .signup-header {
+    text-align: center;
+    margin-bottom: 35px;
+  }
+
+  .logo-icon-wrapper-large {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 20px;
+    font-size: 1.5rem;
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4);
+  }
+
+  .signup-header h2 {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 2rem;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .signup-header p {
+    color: #a1a1aa;
+    font-size: 0.95rem;
+  }
+
+  /* CSS Grid for the Form */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+
+  /* Form Elements */
+  .form-group label {
+    display: block;
+    color: #e4e4e7;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .required {
+    color: #ef4444;
+  }
+
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 16px;
+    color: #71717a;
+    font-size: 1rem;
+    pointer-events: none;
+    transition: color 0.3s ease;
+  }
+
+  .input-wrapper input,
+  .input-wrapper select {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.95rem;
+    padding: 14px 16px 14px 45px;
+    transition: all 0.3s ease;
+  }
+
+  .input-wrapper select {
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .input-wrapper input::placeholder {
+    color: #52525b;
+  }
+
+  .input-wrapper input:focus,
+  .input-wrapper select:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: #a855f7;
+    box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15);
+  }
+
+  .input-wrapper input:focus + .input-icon,
+  .input-wrapper select:focus + .input-icon {
+    color: #a855f7;
+  }
+
+  /* Validation */
+  .invalid-feedback {
+    display: none;
+    color: #ef4444;
+    font-size: 0.8rem;
+    margin-top: 5px;
+  }
+
+  .was-validated input:invalid,
+  .was-validated select:invalid {
+    border-color: #ef4444;
+  }
+
+  .was-validated input:invalid ~ .invalid-feedback,
+  .was-validated select:invalid ~ .invalid-feedback {
+    display: block;
+  }
+
+  /* Submit Button */
+  .action-row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .btn-auth-glow {
+    width: 100%;
+    max-width: 400px;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+    border: none;
+    padding: 15px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-auth-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(99, 102, 241, 0.5);
+  }
+
+  /* Footer Links */
+  .auth-footer {
+    text-align: center;
+    margin-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 20px;
+  }
+
+  .auth-footer p {
+    color: #a1a1aa;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .auth-footer a {
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    margin-left: 5px;
+  }
+
+  .auth-footer a:hover {
+    color: #a855f7;
+  }
+
+  /* Entrance Animation */
+  .fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Mobile Adjustments */
+  @media (max-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr; /* Stack into a single column on mobile */
+      gap: 15px;
+    }
+    .signup-container {
+      padding: 30px 20px;
+      border-radius: 20px;
+    }
+    .signup-header h2 {
+      font-size: 1.6rem;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>
