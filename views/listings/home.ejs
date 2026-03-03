@@ -416,7 +416,7 @@
         /* Responsive */
         @media (max-width: 768px) {
             .hero h1 { font-size: 3rem; }
-            .nav-links { display: none; } /* Add a hamburger menu for mobile later */
+            .nav-links { display: none; }
             .floating-icon { display: none; }
         }
     </style>
@@ -425,7 +425,6 @@
 
     <div class="ambient-glow"></div>
     <div class="ambient-glow right"></div>
-
 
     <header class="hero">
         <div class="floating-icon icon-1"><i class="fa-solid fa-robot"></i></div>
@@ -439,22 +438,22 @@
         
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" placeholder="Search for writing, coding, or image tools...">
+            <input type="text" id="homeSearchInput" placeholder="Search for writing, coding, or image tools...">
         </div>
 
         <div class="categories">
-            <div class="category-pill active">All</div>
-            <div class="category-pill">Text & Writing</div>
-            <div class="category-pill">Image Generation</div>
-            <div class="category-pill">Code Assistants</div>
-            <div class="category-pill">Audio & Video</div>
+            <div class="category-pill active" data-category="all">All Tools</div>
+            <div class="category-pill" data-category="Text Generation">Text & Writing</div>
+            <div class="category-pill" data-category="Image Generation">Image Generation</div>
+            <div class="category-pill" data-category="Code Assistant">Code Assistants</div>
+            <div class="category-pill" data-category="Video Editing">Audio & Video</div>
         </div>
     </header>
 
     <section class="tools-section">
         <div class="section-header scroll-animate">
             <h2>Trending <span class="text-gradient">this week</span></h2>
-            <a href="#" style="color: var(--text-secondary); text-decoration: none;">View all <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="/home/listings" style="color: var(--text-secondary); text-decoration: none;">View all <i class="fa-solid fa-arrow-right"></i></a>
         </div>
 
         <div class="tools-grid">
@@ -463,13 +462,13 @@
                     <div class="card-icon" style="background: linear-gradient(135deg, #10a37f, #0d8a6b);"><i class="fa-solid fa-bolt"></i></div>
                     <div class="card-title">
                         <h3>ChatGPT</h3>
-                        <span>Conversational AI</span>
+                        <span>Text Generation</span>
                     </div>
                 </div>
                 <p class="card-desc">Advanced language model by OpenAI capable of coding, writing, and complex problem solving.</p>
                 <div class="card-footer">
                     <div class="pricing"><i class="fa-solid fa-circle-check"></i> Freemium</div>
-                    <a href="#" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://chat.openai.com" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
 
@@ -484,7 +483,7 @@
                 <p class="card-desc">Create highly detailed and artistic images from text prompts using Discord.</p>
                 <div class="card-footer">
                     <div class="pricing"><i class="fa-solid fa-circle-check" style="color:#6366f1"></i> Paid</div>
-                    <a href="#" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://midjourney.com" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
 
@@ -499,7 +498,7 @@
                 <p class="card-desc">Your AI pair programmer that suggests code and entire functions in real-time.</p>
                 <div class="card-footer">
                     <div class="pricing"><i class="fa-solid fa-circle-check" style="color:#6366f1"></i> Paid</div>
-                    <a href="#" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://github.com/features/copilot" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
             
@@ -508,13 +507,13 @@
                     <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"><i class="fa-solid fa-brain"></i></div>
                     <div class="card-title">
                         <h3>Claude 3</h3>
-                        <span>Analytical AI</span>
+                        <span>Text Generation</span>
                     </div>
                 </div>
                 <p class="card-desc">Anthropic's latest AI model with massive context windows and exceptional reasoning.</p>
                 <div class="card-footer">
                     <div class="pricing"><i class="fa-solid fa-circle-check"></i> Freemium</div>
-                    <a href="#" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://claude.ai" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
@@ -524,10 +523,12 @@
         // Navbar scroll effect
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('navbar');
-            if (window.scrollY > 50) {
-                nav.classList.add('scrolled');
-            } else {
-                nav.classList.remove('scrolled');
+            if (nav) {
+                if (window.scrollY > 50) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
             }
         });
 
@@ -541,8 +542,6 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
-                    // Optional: Stop observing once animated
-                    // observer.unobserve(entry.target); 
                 }
             });
         }, observerOptions);
@@ -551,12 +550,22 @@
             observer.observe(el);
         });
         
-        // Category Pill Click Toggle (Visual only for now)
+        // --- NEW: REDIRECT LOGIC FOR CATEGORY PILLS ---
         document.querySelectorAll('.category-pill').forEach(pill => {
-            pill.addEventListener('click', () => {
-                document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
-                pill.classList.add('active');
+            pill.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                // Redirect to the explore page with the category attached to the URL
+                window.location.href = `/home/listings?category=${encodeURIComponent(category)}`;
             });
+        });
+
+        // --- NEW: REDIRECT LOGIC FOR SEARCH BAR ---
+        const homeSearchInput = document.getElementById('homeSearchInput');
+        homeSearchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                // Redirect to the explore page with the search term attached to the URL
+                window.location.href = `/home/listings?search=${encodeURIComponent(this.value)}`;
+            }
         });
     </script>
 </body>

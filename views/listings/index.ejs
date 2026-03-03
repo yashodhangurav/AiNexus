@@ -396,3 +396,88 @@
     sortFilter.addEventListener('change', filterAndSortTools);
   });
 </script>
+
+
+<!-- --------------------------------------------- SEARCH FROM THE HOME PAGE JS SCRIPT------------------------->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    const toolsGrid = document.getElementById('toolsGrid');
+    const noResultsMsg = document.getElementById('noResults');
+    const cards = Array.from(document.querySelectorAll('.tool-card-col'));
+
+    // --- NEW: CHECK URL FOR PARAMETERS ON LOAD ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+    const searchParam = urlParams.get('search');
+
+    if (categoryParam) {
+      categoryFilter.value = categoryParam; // Set the dropdown to match the URL
+    }
+    if (searchParam) {
+      searchInput.value = searchParam; // Fill the search box with the URL query
+    }
+    // ---------------------------------------------
+
+    function filterAndSortTools() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const selectedCategory = categoryFilter.value;
+      const sortBy = sortFilter.value;
+
+      let visibleCount = 0;
+      let visibleCards = [];
+
+      // 1. Filtering
+      cards.forEach(card => {
+        const name = card.getAttribute('data-name');
+        const desc = card.getAttribute('data-desc');
+        const category = card.getAttribute('data-category');
+
+        const matchesSearch = name.includes(searchTerm) || desc.includes(searchTerm);
+        const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
+
+        if (matchesSearch && matchesCategory) {
+          card.classList.remove('d-none');
+          visibleCards.push(card);
+          visibleCount++;
+        } else {
+          card.classList.add('d-none');
+        }
+      });
+
+      // 2. Sorting (re-appending children in order)
+      visibleCards.sort((a, b) => {
+        const nameA = a.getAttribute('data-name');
+        const nameB = b.getAttribute('data-name');
+        const dateA = parseInt(a.getAttribute('data-date'));
+        const dateB = parseInt(b.getAttribute('data-date'));
+
+        if (sortBy === 'a-z') return nameA.localeCompare(nameB);
+        if (sortBy === 'z-a') return nameB.localeCompare(nameA);
+        if (sortBy === 'newest') return dateB - dateA; 
+        if (sortBy === 'oldest') return dateA - dateB;
+      });
+
+      // Append sorted elements back to the grid
+      visibleCards.forEach(card => toolsGrid.appendChild(card));
+
+      // 3. Show/Hide Empty State
+      if (visibleCount === 0) {
+        noResultsMsg.classList.remove('d-none');
+      } else {
+        noResultsMsg.classList.add('d-none');
+      }
+    }
+
+    // Attach Event Listeners
+    searchInput.addEventListener('input', filterAndSortTools);
+    categoryFilter.addEventListener('change', filterAndSortTools);
+    sortFilter.addEventListener('change', filterAndSortTools);
+
+    // --- NEW: RUN FILTER IMMEDIATELY ON LOAD ---
+    // This ensures that if the user came from the Home page, the filter applies instantly
+    filterAndSortTools();
+  });
+</script>
