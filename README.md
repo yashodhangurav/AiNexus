@@ -1,22 +1,26 @@
 <div align="center">
-  <img src="./public/assets/favicon.svg" alt="AiNexus Logo" width="100"/>
-
-  <h1>AiNexus</h1>
-  <p><strong>The Ultimate AI Tool Directory & Community Hub</strong></p>
-
-  <p>
-    <a href="#features">Features</a> •
-    <a href="#tech-stack">Tech Stack</a> •
-    <a href="#installation">Installation</a> •
-    <a href="#environment-variables">Environment Vars</a>
-  </p>
-
-  <p>
-    <img href="/assets/screenshots/HomePage.png" alt="Node.js" />
-    <img src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge" alt="Express.js" />
-    <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
-    <img src="https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap" />
-  </p>
+  <table>
+    <tr>
+      <td align="center">
+        <b>Hero / Home Page</b><br/>
+        <img src="./public/assets/screenshots/HomePage.png" width="400" alt="Home Page"/>
+      </td>
+      <td align="center">
+        <b>Live Explore Directory</b><br/>
+        <img src="./public/assets/screenshots/Directory.png" width="400" alt="Directory Page"/>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <b>Tool Details & Reviews</b><br/>
+        <img src="./public/assets/screenshots/ShowPage.png" width="400" alt="Show Page"/>
+      </td>
+      <td align="center">
+        <b>AiNexus Chatbot</b><br/>
+        <img src="./public/assets/screenshots/ChatBot.png" width="400" alt="Chatbot"/>
+      </td>
+    </tr>
+  </table>
 </div>
 
 ---
