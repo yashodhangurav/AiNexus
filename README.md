@@ -1,7 +1,7 @@
 <div align="center">
   <img src="./public/assets/favicon.svg" alt="AiNexus Logo" width="100"/>
 
-  <h1>✨ AiNexus</h1>
+  <h1>AiNexus</h1>
   <p><strong>The Ultimate AI Tool Directory & Community Hub</strong></p>
 
   <p>
@@ -12,7 +12,7 @@
   </p>
 
   <p>
-    <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+    <img href="/assets/screenshots/HomePage.png" alt="Node.js" />
     <img src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge" alt="Express.js" />
     <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
     <img src="https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white" alt="Bootstrap" />
