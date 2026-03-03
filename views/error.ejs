@@ -1,84 +1,188 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
-<head>
-<style>
+<section class="ainexus-error-section">
+  <div class="ambient-glow-err-1"></div>
+  <div class="ambient-glow-err-2"></div>
 
-body {
-  
-  height: 100vh; /* Full viewport height */
-  margin: 0;
-  background-color: #f0f0f0; /* optional */
-}
-.error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  margin: 1rem 0;
-  background-color: #fff;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  padding: 2rem; /* optional */
-}
+  <div class="container d-flex justify-content-center align-items-center relative-z" style="min-height: calc(100vh - 100px);">
+    
+    <div class="error-glass-card fade-in-up text-center">
+      
+      <div class="error-icon-wrapper">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
 
+      <h1 class="error-glitch-title">System Anomaly</h1>
+      
+      <div class="error-message-box">
+        <p class="mb-0 fw-semibold"><%= message %></p>
+      </div>
 
-    .error-code {
-      font-size: 6rem;
-      font-weight: 800;
-      color: #af4c4c;
-    }
+      <p class="error-subtext">
+        Our AI routing systems encountered an unexpected block. Don't worry, your data is completely safe. Let's get you back on track.
+      </p>
 
-    .error-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #db2c2c;
-    }
+      <a href="/home/listings" class="btn-error-glow mt-2">
+        <i class="fa-solid fa-arrow-left me-2"></i> Return to Directory
+      </a>
 
-    .error-message {
-      color: #555;
-      margin: 1rem 0 2rem;
-      font-size: 1rem;
-    }
+    </div>
 
-    .btn-home {
-      background-color: #4caf50;
-      color: #fff;
-      font-weight: 500;
-      border-radius: 10px;
-      padding: 0.75rem 1.5rem;
-      text-decoration: none;
-      transition: all 0.3s ease;
-    }
-
-    .btn-home:hover {
-      background-color: #2e7d32;
-      transform: translateY(-2px);
-    }
-
-    .error-image {
-      width: 100%;
-      max-width: 230px;
-      margin-bottom: 1.5rem;
-    }
-  </style>
-</head>
-
-<div class="err-full-container">
-
-  <div class="error-container">
-    <img
-      src="https://cdn-icons-png.flaticon.com/512/6195/6195699.png"
-      alt="Error Illustration"
-      class="error-image" />
-
-    <div class="error-code"></div>
-    <div class="error-title"><p class="alert alert-danger"><%=message%></p></div>
-    <p class="error-message">
-
-    </p>
-
-    <a href="/home/listings" class="btn-home"> Go Back Home</a>
   </div>
+</section>
 
-</div>
+<style>
+  /* Base Section Setup */
+  .ainexus-error-section {
+    position: relative;
+    min-height: 100vh;
+    background-color: #050505;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #e4e4e7;
+    overflow: hidden;
+    padding-top: 80px; /* Accounts for navbar */
+  }
 
+  .relative-z {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Ambient Glows (Warning Red & Indigo) */
+  .ambient-glow-err-1 {
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, transparent 70%);
+    filter: blur(60px);
+    z-index: 0;
+    pointer-events: none;
+    animation: pulseError 4s infinite alternate;
+  }
+
+  .ambient-glow-err-2 {
+    position: absolute;
+    bottom: 10%;
+    right: 20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+    filter: blur(50px);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* Main Glass Card */
+  .error-glass-card {
+    background: rgba(20, 20, 20, 0.7);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(239, 68, 68, 0.2); /* Subtle red border */
+    border-radius: 24px;
+    padding: 50px 40px;
+    max-width: 550px;
+    width: 100%;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(239, 68, 68, 0.1);
+  }
+
+  /* Icon Wrapper */
+  .error-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(153, 27, 27, 0.2));
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 25px;
+    font-size: 2.5rem;
+    color: #f87171;
+    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.2);
+    transform: rotate(-10deg);
+    animation: floatingIcon 3s ease-in-out infinite;
+  }
+
+  /* Typography */
+  .error-glitch-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -1px;
+    margin-bottom: 15px;
+  }
+
+  .error-message-box {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid #ef4444;
+    padding: 15px 20px;
+    border-radius: 0 12px 12px 0;
+    color: #fca5a5;
+    margin-bottom: 25px;
+    text-align: left;
+  }
+
+  .error-subtext {
+    color: #a1a1aa;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 35px;
+  }
+
+  /* Return Button */
+  .btn-error-glow {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff;
+    color: #050505;
+    padding: 14px 30px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1);
+    width: 100%;
+  }
+
+  .btn-error-glow:hover {
+    transform: translateY(-3px);
+    background: #e4e4e7;
+    color: #000;
+    box-shadow: 0 15px 35px rgba(255, 255, 255, 0.2);
+  }
+
+  /* Animations */
+  .fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulseError {
+    0% { transform: scale(1); opacity: 0.6; }
+    100% { transform: scale(1.1); opacity: 1; }
+  }
+
+  @keyframes floatingIcon {
+    0%, 100% { transform: translateY(0) rotate(-10deg); }
+    50% { transform: translateY(-10px) rotate(-5deg); }
+  }
+
+  /* Mobile Adjustments */
+  @media (max-width: 480px) {
+    .error-glass-card {
+      padding: 40px 25px;
+      border-radius: 20px;
+    }
+    .error-glitch-title {
+      font-size: 1.8rem;
+    }
+  }
+</style>
