@@ -17,7 +17,7 @@ module.exports.signup = async(req,res)=>{
             if(err){
                 next(err);
             }
-            req.flash("success", "Welcome to Farm-Link !");
+            req.flash("success", "Welcome to Ai Nexus !");
             res.redirect("/home");
         })
         
@@ -35,7 +35,7 @@ module.exports.renderLoginForm = (req,res)=>{
 };
 
 module.exports.login = async(req,res)=>{ //passport.authenticate is a default middleware provided by the passport package itself , which use to authentication before login
-    req.flash("success","Welcome back to Farm-Link !");
+    req.flash("success","Welcome back to Ai Nexus !");
     let redirectUrl = res.locals.redirectUrl || "/home";
     res.redirect(redirectUrl);
 };

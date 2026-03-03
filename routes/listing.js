@@ -35,13 +35,20 @@ router.get("/chatbot", listingController.chatbot );
 router
 .get("/listings/:id", validateListing, wrapAsync(listingController.show))
 
+// In your routes/listings.js file:
+
+// BAD (Causes "Unexpected field"): 
+// router.post('/', upload.single('logo'), ... )
+
+// GOOD (Fixes the error):
+router.post('/listings', isLoggedIn, upload.single('listing[logo]'), validateListing, wrapAsync(listingController.createListing));
 
 // create route
-router.post("/listings", 
-    isLoggedIn, 
-    upload.single('listing[imageUrl]'),
-    validateListing, //joivalidation
-    wrapAsync(listingController.createListing));
+// router.post("/listings", 
+//     isLoggedIn, 
+//     upload.single('listing[imageUrl]'),
+//     validateListing, //joivalidation
+//     wrapAsync(listingController.createListing));
 
 
 

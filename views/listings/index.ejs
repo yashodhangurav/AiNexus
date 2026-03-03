@@ -11,22 +11,66 @@
       <p class="text-muted-custom">Discover, compare, and integrate the perfect AI models for your workflow.</p>
     </div>
 
-    <div class="row g-4">
+    <div class="search-filter-hub fade-in-up" style="animation-delay: 0.1s;">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Search AI tools by name or description...">
+      </div>
+      
+      <div class="filter-controls">
+        <div class="custom-select-wrapper">
+          <i class="fa-solid fa-layer-group select-icon"></i>
+          <select id="categoryFilter">
+            <option value="all">All Categories</option>
+            <option value="Text Generation">Text Generation</option>
+            <option value="Image Generation">Image Generation</option>
+            <option value="Video Editing">Video Editing</option>
+            <option value="Code Assistant">Code Assistant</option>
+            <option value="Productivity">Productivity</option>
+            <option value="Chatbot">Chatbot</option>
+            <option value="Voice AI">Voice AI</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="custom-select-wrapper">
+          <i class="fa-solid fa-arrow-down-a-z select-icon"></i>
+          <select id="sortFilter">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="a-z">Name (A-Z)</option>
+            <option value="z-a">Name (Z-A)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4" id="toolsGrid">
       <% for(let listing of allListings) { %>
-        <div class="col-xl-4 col-lg-4 col-md-6">
+        <div class="col-xl-4 col-lg-4 col-md-6 tool-card-col" 
+             data-name="<%= listing.name.toLowerCase() %>" 
+             data-desc="<%= listing.description.toLowerCase() %>"
+             data-category="<%= listing.category %>"
+             data-date="<%= new Date(listing._id.getTimestamp()).getTime() %>">
+          
           <div class="ainexus-tool-card h-100 fade-in-up-stagger">
             
             <div class="card-top-row">
               <div class="tool-icon-wrapper">
                 <img 
-                  src="<%= listing.logo || 'https://placehold.co/200x200/1e1b4b/a855f7?text=AI' %>" 
+                  src="<%= listing.logo && listing.logo.url ? listing.logo.url : 'https://placehold.co/200x200/1e1b4b/a855f7?text=AI' %>" 
                   alt="<%= listing.name %> logo"
                   loading="lazy"
                 >
               </div>
-              <span class="category-pill">
-                <i class="fa-solid fa-layer-group me-1"></i> <%= listing.category %>
-              </span>
+              <div class="card-badges">
+                <span class="category-pill">
+                  <i class="fa-solid fa-layer-group me-1"></i> <%= listing.category %>
+                </span>
+                <span class="pricing-pill <%= listing.pricingModel === 'Free' ? 'free-tier' : 'paid-tier' %>">
+                  <i class="fa-solid fa-tag me-1"></i> <%= listing.pricingModel || 'Unknown' %>
+                </span>
+              </div>
             </div>
 
             <div class="card-content">
@@ -49,6 +93,12 @@
         </div>
       <% } %>
     </div>
+    
+    <div id="noResults" class="text-center py-5 d-none">
+      <i class="fa-solid fa-ghost fs-1 text-muted-custom mb-3"></i>
+      <h4 class="text-white">No AI tools found</h4>
+      <p class="text-muted-custom">Try adjusting your search or category filter.</p>
+    </div>
 
   </div>
 </section>
@@ -59,7 +109,7 @@
     position: relative;
     min-height: 100vh;
     background-color: #050505;
-    padding: 120px 0 80px; /* Accounts for floating navbar */
+    padding: 120px 0 80px;
     font-family: 'Plus Jakarta Sans', sans-serif;
     overflow: hidden;
   }
@@ -72,188 +122,277 @@
   /* Ambient Backgrounds */
   .ambient-glow-dir-1 {
     position: absolute;
-    top: 10%;
-    left: -10%;
-    width: 600px;
-    height: 600px;
+    top: 10%; left: -10%;
+    width: 600px; height: 600px;
     background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
-    filter: blur(60px);
-    z-index: 0;
-    pointer-events: none;
+    filter: blur(60px); z-index: 0; pointer-events: none;
   }
 
   .ambient-glow-dir-2 {
     position: absolute;
-    bottom: 10%;
-    right: -10%;
-    width: 600px;
-    height: 600px;
+    bottom: 10%; right: -10%;
+    width: 600px; height: 600px;
     background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
-    filter: blur(60px);
-    z-index: 0;
-    pointer-events: none;
+    filter: blur(60px); z-index: 0; pointer-events: none;
   }
 
   /* Header */
   .directory-header {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
   }
 
   .gradient-title {
-    font-size: 3rem;
-    font-weight: 800;
-    letter-spacing: -1px;
+    font-size: 3rem; font-weight: 800; letter-spacing: -1px;
     background: linear-gradient(135deg, #ffffff, #a1a1aa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     margin-bottom: 10px;
   }
 
-  .text-muted-custom {
-    color: #a1a1aa;
-    font-size: 1.1rem;
+  .text-muted-custom { color: #a1a1aa; font-size: 1.1rem; }
+
+  /* --- Search & Filter Hub --- */
+  .search-filter-hub {
+    display: flex;
+    gap: 15px;
+    background: rgba(20, 20, 20, 0.6);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 15px;
+    margin-bottom: 40px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-wrapper {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 16px; top: 50%; transform: translateY(-50%);
+    color: #71717a;
+  }
+
+  .search-wrapper input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    padding: 12px 16px 12px 42px;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+  }
+
+  .search-wrapper input:focus {
+    outline: none; border-color: #a855f7;
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+  }
+
+  .filter-controls {
+    display: flex; gap: 10px;
+  }
+
+  .custom-select-wrapper {
+    position: relative;
+    min-width: 160px;
+  }
+
+  .select-icon {
+    position: absolute;
+    left: 12px; top: 50%; transform: translateY(-50%);
+    color: #a1a1aa; font-size: 0.85rem; pointer-events: none;
+  }
+
+  .custom-select-wrapper select {
+    width: 100%;
+    appearance: none; cursor: pointer;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #e4e4e7;
+    padding: 12px 35px 12px 32px;
+    font-size: 0.9rem; font-weight: 500;
+    transition: all 0.3s;
+  }
+
+  .custom-select-wrapper select:focus {
+    outline: none; border-color: #a855f7;
+  }
+  
+  .custom-select-wrapper::after {
+    content: '\f0d7'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    color: #71717a; pointer-events: none; font-size: 0.8rem;
   }
 
   /* --- Premium Glassmorphic Card --- */
   .ainexus-tool-card {
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column;
     background: rgba(20, 20, 20, 0.6);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 24px;
+    border-radius: 20px; padding: 24px;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   }
 
   .ainexus-tool-card:hover {
-    transform: translateY(-8px);
-    border-color: rgba(168, 85, 247, 0.4);
+    transform: translateY(-8px); border-color: rgba(168, 85, 247, 0.4);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(168, 85, 247, 0.1);
     background: rgba(25, 25, 25, 0.8);
   }
 
-  /* Card Top Row (Logo & Badge) */
+  /* Card Top Row (Logo & Badges) */
   .card-top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    display: flex; justify-content: space-between; align-items: flex-start;
     margin-bottom: 20px;
   }
 
   .tool-icon-wrapper {
-    width: 64px;
-    height: 64px;
-    border-radius: 14px;
-    overflow: hidden;
-    background: #0f0f11;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    width: 60px; height: 60px;
+    border-radius: 14px; overflow: hidden;
+    background: #0f0f11; border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5); flex-shrink: 0;
   }
 
-  .tool-icon-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  .tool-icon-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+
+  .card-badges {
+    display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
   }
 
   .category-pill {
-    background: rgba(99, 102, 241, 0.15);
-    color: #818cf8;
+    background: rgba(99, 102, 241, 0.15); color: #818cf8;
     border: 1px solid rgba(99, 102, 241, 0.3);
-    padding: 6px 12px;
-    border-radius: 50px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
+    padding: 4px 10px; border-radius: 50px;
+    font-size: 0.7rem; font-weight: 600;
   }
+
+  .pricing-pill {
+    padding: 4px 10px; border-radius: 50px;
+    font-size: 0.7rem; font-weight: 600; border: 1px solid;
+  }
+  
+  .free-tier { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+  .paid-tier { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
 
   /* Card Body */
   .tool-title {
-    color: #ffffff;
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    letter-spacing: -0.3px;
+    color: #ffffff; font-size: 1.3rem; font-weight: 700;
+    margin-bottom: 10px; letter-spacing: -0.3px;
   }
 
   .tool-desc {
-    color: #a1a1aa;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    margin-bottom: 24px;
+    color: #a1a1aa; font-size: 0.9rem; line-height: 1.6; margin-bottom: 24px;
   }
 
   /* Card Actions */
-  .card-actions {
-    display: flex;
-    gap: 12px;
-  }
+  .card-actions { display: flex; gap: 12px; }
 
   .btn-glass-sm {
-    background: rgba(255, 255, 255, 0.05);
-    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05); color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 10px 16px;
-    border-radius: 12px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-decoration: none;
+    padding: 10px 16px; border-radius: 12px;
+    font-size: 0.9rem; font-weight: 600; text-decoration: none;
     transition: all 0.3s ease;
   }
 
-  .btn-glass-sm:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-  }
+  .btn-glass-sm:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #ffffff; }
 
   .btn-glow-sm {
-    background: linear-gradient(135deg, #6366f1, #a855f7);
-    color: #ffffff;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 12px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    background: linear-gradient(135deg, #6366f1, #a855f7); color: #ffffff;
+    border: none; padding: 10px 16px; border-radius: 12px;
+    font-size: 0.9rem; font-weight: 600; text-decoration: none;
+    transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
   }
 
   .btn-glow-sm:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.5);
-    color: #ffffff;
+    transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.5); color: #ffffff;
   }
 
-  /* Entrance Animations */
-  .fade-in-up {
-    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-
-  .fade-in-up-stagger {
-    opacity: 0;
-    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    animation-delay: 0.2s; /* Add some staggered JS logic here if desired later */
-  }
-
-  @keyframes fadeInUp {
-    0% { opacity: 0; transform: translateY(30px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
+  /* Animations */
+  .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .fade-in-up-stagger { opacity: 0; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.2s; }
+  @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
 
   /* Mobile Tweaks */
   @media (max-width: 768px) {
-    .gradient-title {
-      font-size: 2.2rem;
-    }
-    .card-actions {
-      flex-direction: column;
-    }
+    .gradient-title { font-size: 2.2rem; }
+    .card-actions { flex-direction: column; }
+    .filter-controls { width: 100%; flex-wrap: wrap; }
+    .custom-select-wrapper { flex: 1; min-width: 140px; }
   }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    const toolsGrid = document.getElementById('toolsGrid');
+    const noResultsMsg = document.getElementById('noResults');
+    const cards = Array.from(document.querySelectorAll('.tool-card-col'));
+
+    function filterAndSortTools() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const selectedCategory = categoryFilter.value;
+      const sortBy = sortFilter.value;
+
+      let visibleCount = 0;
+      let visibleCards = [];
+
+      // 1. Filtering
+      cards.forEach(card => {
+        const name = card.getAttribute('data-name');
+        const desc = card.getAttribute('data-desc');
+        const category = card.getAttribute('data-category');
+
+        const matchesSearch = name.includes(searchTerm) || desc.includes(searchTerm);
+        const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
+
+        if (matchesSearch && matchesCategory) {
+          card.classList.remove('d-none');
+          visibleCards.push(card);
+          visibleCount++;
+        } else {
+          card.classList.add('d-none');
+        }
+      });
+
+      // 2. Sorting (re-appending children in order)
+      visibleCards.sort((a, b) => {
+        const nameA = a.getAttribute('data-name');
+        const nameB = b.getAttribute('data-name');
+        const dateA = parseInt(a.getAttribute('data-date'));
+        const dateB = parseInt(b.getAttribute('data-date'));
+
+        if (sortBy === 'a-z') return nameA.localeCompare(nameB);
+        if (sortBy === 'z-a') return nameB.localeCompare(nameA);
+        if (sortBy === 'newest') return dateB - dateA; // Highest timestamp first
+        if (sortBy === 'oldest') return dateA - dateB;
+      });
+
+      // Append sorted elements back to the grid
+      visibleCards.forEach(card => toolsGrid.appendChild(card));
+
+      // 3. Show/Hide Empty State
+      if (visibleCount === 0) {
+        noResultsMsg.classList.remove('d-none');
+      } else {
+        noResultsMsg.classList.add('d-none');
+      }
+    }
+
+    // Attach Event Listeners
+    searchInput.addEventListener('input', filterAndSortTools);
+    categoryFilter.addEventListener('change', filterAndSortTools);
+    sortFilter.addEventListener('change', filterAndSortTools);
+  });
+</script>

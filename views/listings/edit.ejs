@@ -1,183 +1,285 @@
 <% layout("/layouts/boilerplate.ejs") %>
 
-<body>
-    <!-- style -->
-    <style>
-       body {
-          font-family: Arial, sans-serif;
-          background: #f9fafb;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          flex-direction: column;
-        }
-    
-        form {
-          background: white;
-          padding: 2rem;
-          border-radius: 10px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-          width: 600px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          margin-left: 30%;
-        }
-    
-        h2 {
-          text-align: center;
-          margin-bottom: 1rem;
-          color: #2b7a0b;
-        }
-    
-        label {
-          display: block;
-          margin: 0.5rem 0 0.2rem;
-          font-weight: bold;
-          font-size: 0.9rem;
-        }
-    
-        input, textarea, select {
-          width: 100%;
-          padding: 0.5rem;
-          margin-bottom: 1rem;
-          border: 1px solid #ccc;
-          border-radius: 6px;
-          font-size: 0.9rem;
-        }
-    
-        button {
-          background: #2b7a0b;
-          color: white;
-          padding: 0.7rem;
-          border: none;
-          border-radius: 6px;
-          font-size: 1rem;
-          cursor: pointer;
-          transition: background 0.3s;
-        }
-    
-        button:hover {
-          background: #256508;
-        }
-        /* RESPONSIVE DESIGN FOR MOBILE DEVICES */
-        @media (max-width: 768px) {
-          form {
-            width: 90%;
-            margin: 1.5rem auto;
-            padding: 1.5rem;
-          }
+<section class="edit-tool-section">
+  <div class="ambient-glow-edit-1"></div>
+  <div class="ambient-glow-edit-2"></div>
 
-          h2 {
-            font-size: 1.3rem;
-          }
-
-          input, textarea, select {
-            font-size: 1rem;
-            padding: 0.6rem;
-          }
-
-          button {
-            font-size: 1rem;
-            padding: 0.8rem;
-          }
-        }
-
-        @media (max-width: 480px) {
-          form {
-            width: 95%;
-            padding: 1.2rem;
-          }
-
-          h2 {
-            font-size: 1.1rem;
-          }
-
-          label {
-            font-size: 0.85rem;
-          }
-
-          button {
-            font-size: 0.95rem;
-          }
-        }
-      </style>
-
-      <!-- form -->
-
-    <form method="POST" action="/home/listings/<%=listing._id%>?_method=put" novalidate class="needs-validation" enctype="multipart/form-data" >
-        <h2>Edit your Machinery</h2>
-
-        <div>
-          <label for="title">Title</label>
-          <input type="text" id="title" name="listing[title]" value="<%=listing.title%>" class="form-control" required />
-          <div class="invalid-feedback">
-            Please enter a Title.
-          </div>
-        </div>
-   
-        <div>
-          <label for="type">Type</label>
-          <select id="type" name="listing[type]" class="form-control" required>
-            <option value="">Select Type</option>
-            <option value="tractor" <%= listing.type === "tractor" ? "selected" : "" %>>Tractor</option>
-            <option value="harvester" <%= listing.type === "harvester" ? "selected" : "" %>>Harvester</option>
-            <option value="sprayer" <%= listing.type === "sprayer" ? "selected" : "" %>>Sprayer</option>
-            <option value="plough" <%= listing.type === "plough" ? "selected" : "" %>>Plough</option>
-            <option value="seeder" <%= listing.type === "seeder" ? "selected" : "" %>>Seeder</option>
-            <option value="irrigation" <%= listing.type === "irrigation" ? "selected" : "" %>>Irrigation</option>
-            <option value="other" <%= listing.type === "" ? "selected" : "" %>>Other</option>
-          </select>
-          <div class="invalid-feedback">
-            Please choose a Type.
-          </div>
-        </div>
-   
-        <div>
-          <label for="description">Description</label>
-          <textarea id="description" name="listing[description]" rows="3" class="form-control" required><%=listing.description%></textarea>
-          <div class="invalid-feedback">
-            Please enter the Decription.
-          </div>
-        </div>
-   
-        <div>
-          <label for="pricePerDay">Price per Day (₹)</label>
-          <input type="number" id="pricePerDay" name="listing[pricePerDay]" value="<%=listing.pricePerDay%>" class="form-control" required />
-          <div class="invalid-feedback">
-            Please enter Price.
-          </div>
-        </div>
-    
-         <!-- Existing Image Preview -->
-    <% if(listing.imageUrl && listing.imageUrl.url) { %>
-      <div class="mb-2">
-        <label>Current Image:</label><br>
-        <img src="<%=listing.imageUrl.url%>" alt="Current Image" style="width: 150px; height: auto; border-radius: 5px; border: 1px solid #ccc;">
-      </div>
-      <% } %>
-
+  <div class="form-glass-container fade-in-up">
+    <div class="form-header position-relative">
+      <a href="/home/listings/<%= listing._id %>" class="btn-glass-back-absolute">
+        <i class="fa-solid fa-arrow-left"></i>
+      </a>
       
-        <div>
-          <label for="imageUrl">Upload New Image</label>
-          <input type="file" id="imageUrl" name="listing[imageUrl]" />
-        </div>
-    
-        <div>
-          <label for="location">Location</label>
-          <input type="text" id="location" name="listing[location]" value="<%=listing.location%>" class="form-control" required />
-          <div class="invalid-feedback">
-            Please enter Location.
+      <div class="logo-icon-wrapper-large">
+        <i class="fa-solid fa-pen-nib"></i>
+      </div>
+      <h2>Edit AI Tool</h2>
+      <p>Updating details for <strong class="text-white"><%= listing.name %></strong></p>
+    </div>
+
+    <form method="POST" action="/home/listings/<%= listing._id %>?_method=PUT" class="needs-validation ainexus-auth-form" novalidate enctype="multipart/form-data">
+      
+      <div class="form-grid">
+        
+        <div class="form-group">
+          <label for="name">Tool Name <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-robot input-icon"></i>
+            <input type="text" id="name" name="listing[name]" value="<%= listing.name %>" required>
+            <div class="invalid-feedback">Please enter a tool name.</div>
           </div>
         </div>
-   
-        <div>
-          <label for="community">Community</label>
-          <input type="text" id="community" name="listing[community]" value="<%=listing.community%>" />
-        </div>
-    
 
-    <button type="submit">Update</button>
+        <div class="form-group">
+          <label for="websiteUrl">Official Website URL <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-link input-icon"></i>
+            <input type="url" id="websiteUrl" name="listing[websiteUrl]" value="<%= listing.websiteUrl %>" required>
+            <div class="invalid-feedback">Please provide a valid URL.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="category">Category <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-layer-group input-icon"></i>
+            <select id="category" name="listing[category]" required>
+              <option value="Text Generation" <%= listing.category === 'Text Generation' ? 'selected' : '' %>>Text Generation</option>
+              <option value="Image Generation" <%= listing.category === 'Image Generation' ? 'selected' : '' %>>Image Generation</option>
+              <option value="Video Editing" <%= listing.category === 'Video Editing' ? 'selected' : '' %>>Video Editing</option>
+              <option value="Code Assistant" <%= listing.category === 'Code Assistant' ? 'selected' : '' %>>Code Assistant</option>
+              <option value="Productivity" <%= listing.category === 'Productivity' ? 'selected' : '' %>>Productivity</option>
+              <option value="Chatbot" <%= listing.category === 'Chatbot' ? 'selected' : '' %>>Chatbot</option>
+              <option value="Voice AI" <%= listing.category === 'Voice AI' ? 'selected' : '' %>>Voice AI</option>
+              <option value="Other" <%= listing.category === 'Other' ? 'selected' : '' %>>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="pricingModel">Pricing Model <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-tag input-icon"></i>
+            <select id="pricingModel" name="listing[pricingModel]" required>
+              <option value="Free" <%= listing.pricingModel === 'Free' ? 'selected' : '' %>>Free</option>
+              <option value="Freemium" <%= listing.pricingModel === 'Freemium' ? 'selected' : '' %>>Freemium</option>
+              <option value="Paid" <%= listing.pricingModel === 'Paid' ? 'selected' : '' %>>Paid</option>
+              <option value="Subscription" <%= listing.pricingModel === 'Subscription' ? 'selected' : '' %>>Subscription</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="description">Description <span class="required">*</span></label>
+          <textarea id="description" name="listing[description]" rows="4" required><%= listing.description %></textarea>
+          <div class="invalid-feedback">Please provide a description.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="tags">Tags <span class="text-muted-custom">(Comma separated)</span></label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-hashtag input-icon"></i>
+            <input type="text" id="tags" name="listing[tags]" value="<%= listing.tags ? listing.tags.join(', ') : '' %>">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="features">Key Features <span class="text-muted-custom">(Comma separated)</span></label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-list-check input-icon"></i>
+            <input type="text" id="features" name="listing[features]" value="<%= listing.features ? listing.features.join(', ') : '' %>">
+          </div>
+        </div>
+
+        <div class="form-group full-width logo-edit-row mt-3">
+          
+          <div class="current-logo-box">
+            <label class="d-block mb-2 text-muted-custom">Current Logo</label>
+            <div class="logo-preview-wrapper">
+              <img 
+                src="<%= listing.logo && listing.logo.url ? listing.logo.url : 'https://placehold.co/200x200/1e1b4b/a855f7?text=No+Logo' %>" 
+                alt="Current Logo"
+              >
+            </div>
+          </div>
+
+          <div class="upload-new-box w-100">
+            <label for="logo">Upload New Logo <span class="text-muted-custom">(Leave blank to keep current)</span></label>
+            <div class="input-wrapper mt-2">
+              <i class="fa-solid fa-image input-icon" style="z-index: 1;"></i>
+              <input type="file" id="logo" name="listing[logo]" class="file-input-custom" accept="image/*">
+            </div>
+          </div>
+          
+        </div>
+
+      </div>
+
+      <div class="action-row mt-5">
+        <button type="submit" class="btn-submit-glow">
+          <i class="fa-solid fa-cloud-arrow-up me-2"></i>
+          <span>Save Changes</span>
+        </button>
+      </div>
 
     </form>
-</body>
+  </div>
+</section>
+
+<style>
+  /* Section Setup */
+  .edit-tool-section {
+    position: relative;
+    min-height: 100vh;
+    background-color: #050505;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 120px 20px 60px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  /* Ambient Glows */
+  .ambient-glow-edit-1 {
+    position: absolute; top: 10%; left: 20%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%); /* Subtle Green glow for editing */
+    filter: blur(50px); z-index: 0; pointer-events: none;
+  }
+
+  .ambient-glow-edit-2 {
+    position: absolute; bottom: 10%; right: 20%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+    filter: blur(60px); z-index: 0; pointer-events: none;
+  }
+
+  /* Main Glass Container */
+  .form-glass-container {
+    position: relative; z-index: 2;
+    background: rgba(15, 15, 15, 0.7);
+    backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(168, 85, 247, 0.1);
+    width: 100%; max-width: 850px; padding: 50px;
+  }
+
+  /* Header */
+  .form-header { text-align: center; margin-bottom: 40px; }
+  
+  .btn-glass-back-absolute {
+    position: absolute; top: 0; left: 0;
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05); color: #a1a1aa;
+    border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;
+  }
+  .btn-glass-back-absolute:hover { background: rgba(255, 255, 255, 0.1); color: #fff; transform: translateX(-3px); }
+
+  .logo-icon-wrapper-large {
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(168, 85, 247, 0.2));
+    border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 16px;
+    display: flex; justify-content: center; align-items: center;
+    margin: 0 auto 20px; font-size: 1.5rem; color: #34d399;
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+  }
+
+  .form-header h2 { color: #ffffff; font-weight: 700; font-size: 2.2rem; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .form-header p { color: #a1a1aa; font-size: 1rem; }
+
+  /* Grid Layout */
+  .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .full-width { grid-column: 1 / -1; }
+
+  /* Inputs & Labels */
+  .form-group label { display: block; color: #e4e4e7; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; }
+  .required { color: #ef4444; }
+  .text-muted-custom { color: #71717a; font-weight: 400; font-size: 0.8rem; }
+
+  .input-wrapper { position: relative; display: flex; align-items: center; }
+  .input-icon { position: absolute; left: 16px; color: #71717a; font-size: 1rem; pointer-events: none; transition: color 0.3s ease; }
+
+  .input-wrapper input[type="text"], .input-wrapper input[type="url"], .input-wrapper select, textarea {
+    width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px; color: #ffffff; font-family: inherit; font-size: 0.95rem; transition: all 0.3s ease;
+  }
+
+  .input-wrapper input[type="text"], .input-wrapper input[type="url"], .input-wrapper select { padding: 14px 16px 14px 45px; }
+  textarea { padding: 14px 16px; resize: vertical; min-height: 120px; }
+  .input-wrapper select { appearance: none; cursor: pointer; }
+  
+  .input-wrapper input:focus, .input-wrapper select:focus, textarea:focus {
+    outline: none; background: rgba(255, 255, 255, 0.06); border-color: #34d399; /* Green focus for edit mode */
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+  }
+
+  .input-wrapper input:focus + .input-icon, .input-wrapper select:focus + .input-icon { color: #34d399; }
+
+  /* Logo Edit Section */
+  .logo-edit-row {
+    display: flex; align-items: center; gap: 30px;
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+    padding: 20px; border-radius: 16px;
+  }
+  .logo-preview-wrapper {
+    width: 80px; height: 80px; border-radius: 16px; overflow: hidden;
+    background: #0f0f11; border: 1px solid rgba(255,255,255,0.1);
+  }
+  .logo-preview-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* File Input Custom Styling */
+  .file-input-custom {
+    width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 12px; padding: 10px 10px 10px 45px; color: #a1a1aa; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease;
+  }
+  .file-input-custom:hover { border-color: #34d399; background: rgba(16, 185, 129, 0.05); }
+  .file-input-custom::file-selector-button {
+    background: rgba(255, 255, 255, 0.1); border: none; border-radius: 8px; color: white;
+    padding: 6px 12px; margin-right: 15px; cursor: pointer; font-weight: 600; transition: background 0.3s;
+  }
+  .file-input-custom::file-selector-button:hover { background: #10b981; }
+
+  /* Validation */
+  .invalid-feedback { display: none; color: #ef4444; font-size: 0.85rem; margin-top: 5px; }
+  .was-validated input:invalid, .was-validated select:invalid, .was-validated textarea:invalid { border-color: #ef4444; }
+  .was-validated input:invalid ~ .invalid-feedback, .was-validated select:invalid ~ .invalid-feedback, .was-validated textarea:invalid + .invalid-feedback { display: block; }
+
+  /* Submit Button */
+  .btn-submit-glow {
+    width: 100%;
+    background: linear-gradient(135deg, #10b981, #059669); /* Green success gradient */
+    color: white; border: none; padding: 16px; font-size: 1.1rem; font-weight: 700;
+    border-radius: 12px; cursor: pointer; display: flex; justify-content: center; align-items: center;
+    transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+  }
+  .btn-submit-glow:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(16, 185, 129, 0.5); }
+
+  /* Animation */
+  .fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+
+  /* Mobile Adjustments */
+  @media (max-width: 768px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-glass-container { padding: 30px 20px; }
+    .logo-edit-row { flex-direction: column; align-items: flex-start; gap: 15px; }
+  }
+</style>
+
+<script>
+  (function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+</script>

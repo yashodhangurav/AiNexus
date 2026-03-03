@@ -46,9 +46,15 @@ const listingSchema = new Schema(
       required: [true, "Official website URL is required"],
     },
 
+    // GOOD SYNTAX
     logo: {
-      type: String,
-      default: "https://placehold.co/200x200?text=AI+Tool",
+      url: {
+          type: String,
+          default: "https://placehold.co/200x200?text=AI+Tool"
+      },
+      filename: {
+          type: String
+      }
     },
 
     screenshots: [

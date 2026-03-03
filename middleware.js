@@ -22,11 +22,13 @@ module.exports.saveRedirectUrl = ((req,res,next)=>{
     next();
 });
 
-module.exports.isOwner = async (req,res,next) => {
-    let {id} = req.params;
+module.exports.isOwner = async (req, res, next) => {
+    let { id } = req.params;
     let listing = await Listing.findById(id);
-    if(!listing.owner.equals(res.locals.currUser._id)){
-        req.flash("error", "You are not the owner of this post !");
+    
+    // FIXED: Now using submittedBy
+    if (!listing.submittedBy.equals(res.locals.currUser._id)) { 
+        req.flash("error", "You don't have permission to edit this tool!");
         return res.redirect(`/home/listings/${id}`);
     }
     next();
