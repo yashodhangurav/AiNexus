@@ -9,10 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
     <style>
         :root {
-            --bg-color: #050505;
-            --surface: #121212;
+            --surface: rgba(18, 18, 18, 0.7);
             --surface-border: rgba(255, 255, 255, 0.08);
             --text-primary: #ffffff;
             --text-secondary: #a1a1aa;
@@ -28,11 +30,25 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
+        /* 3D Canvas Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -10;
+            pointer-events: none; /* Lets clicks pass through to the UI */
+        }
+
         body {
-            background-color: var(--bg-color);
+            /* Background is handled by Three.js now */
+            background-color: transparent !important; 
             color: var(--text-primary);
             overflow-x: hidden;
             line-height: 1.6;
+            margin: 0;
+            padding-top: 10px;
         }
 
         /* Ambient Background Glow */
@@ -46,6 +62,7 @@
             border-radius: 50%;
             z-index: -1;
             animation: pulseGlow 10s infinite alternate;
+            pointer-events: none;
         }
         
         .ambient-glow.right {
@@ -56,8 +73,14 @@
         }
 
         @keyframes pulseGlow {
-            0% { transform: scale(1); opacity: 0.5; }
-            100% { transform: scale(1.2); opacity: 0.8; }
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.2); opacity: 0.6; }
+        }
+
+        /* Content Wrapper to ensure z-index layering */
+        .main-content {
+            position: relative;
+            z-index: 1;
         }
 
         /* Navbar */
@@ -75,57 +98,62 @@
             transition: all 0.3s ease;
         }
 
-        nav.scrolled {
-            background: rgba(5, 5, 5, 0.8);
-            border-bottom: 1px solid var(--surface-border);
+        /* The Floating Pill Base */
+        .floating-pill-nav {
+            position: fixed;
+            top: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            max-width: 1200px;
+            background: rgba(15, 15, 15, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 100px;
+            padding: 8px 12px;
+            z-index: 1050;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+        .floating-pill-nav.scrolled {
+            width: 85%;
+            top: 15px;
+            background: rgba(5, 5, 5, 0.85);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 15px 35px -5px rgba(99, 102, 241, 0.15);
+        }
+
+        .logo-icon-wrapper {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
         }
 
-        .logo i {
-            color: var(--accent-primary);
-        }
+        .accent-icon { color: #ffffff; font-size: 1rem; }
+        .brand-text { font-weight: 700; font-size: 1.25rem; color: #ffffff; letter-spacing: -0.5px; }
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
-
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 0.95rem;
+        .floating-pill-nav .nav-link {
+            color: #a1a1aa !important;
             font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            padding: 10px 24px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
             font-size: 0.95rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none;
-            cursor: pointer;
+            padding: 10px 20px !important;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        .floating-pill-nav .nav-link:hover,
+        .floating-pill-nav .nav-link.active {
+            color: #ffffff !important;
+            background: rgba(255, 255, 255, 0.06);
         }
 
         /* Hero Section */
@@ -138,6 +166,8 @@
             text-align: center;
             padding: 0 20px;
             position: relative;
+            transform-style: preserve-3d;
+            perspective: 1000px;
         }
 
         .hero-badge {
@@ -149,6 +179,7 @@
             color: var(--text-secondary);
             margin-bottom: 24px;
             animation: fadeInUp 0.8s ease backwards;
+            backdrop-filter: blur(10px);
         }
 
         .hero h1 {
@@ -159,6 +190,7 @@
             margin-bottom: 20px;
             max-width: 800px;
             animation: fadeInUp 0.8s ease 0.1s backwards;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .text-gradient {
@@ -187,26 +219,28 @@
             width: 100%;
             max-width: 600px;
             animation: fadeInUp 0.8s ease 0.3s backwards;
+            transform: translateZ(30px); /* 3D pop effect */
         }
 
         .search-container input {
             width: 100%;
             padding: 20px 24px 20px 50px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--surface-border);
+            background: rgba(15, 15, 15, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 16px;
             color: white;
             font-size: 1.1rem;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             transition: all 0.3s ease;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
         .search-container input:focus {
             outline: none;
             border-color: var(--accent-primary);
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), 0 20px 50px rgba(0,0,0,0.5);
+            transform: scale(1.02);
         }
 
         .search-container i {
@@ -216,6 +250,7 @@
             transform: translateY(-50%);
             color: var(--text-secondary);
             font-size: 1.2rem;
+            z-index: 2;
         }
 
         /* Categories */
@@ -230,25 +265,28 @@
 
         .category-pill {
             padding: 8px 20px;
-            background: var(--surface);
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--surface-border);
             border-radius: 50px;
             color: var(--text-secondary);
             font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
 
         .category-pill:hover, .category-pill.active {
             background: var(--text-primary);
-            color: var(--bg-color);
+            color: #000;
             border-color: var(--text-primary);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(255,255,255,0.1);
         }
 
         /* Floating Icons Animation */
         .floating-icon {
             position: absolute;
-            background: var(--surface);
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--surface-border);
             padding: 15px;
             border-radius: 16px;
@@ -256,7 +294,7 @@
             color: var(--text-secondary);
             animation: float 6s ease-in-out infinite;
             z-index: -1;
-            opacity: 0.5;
+            backdrop-filter: blur(5px);
         }
 
         .icon-1 { top: 20%; left: 15%; animation-delay: 0s; }
@@ -269,6 +307,7 @@
             padding: 100px 5%;
             max-width: 1400px;
             margin: 0 auto;
+            position: relative;
         }
 
         .section-header {
@@ -289,35 +328,38 @@
         .section-header h2 {
             font-size: 2.5rem;
             letter-spacing: -1px;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
         .tools-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 24px;
+            perspective: 1000px;
         }
 
+        /* 3D Tool Cards */
         .tool-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--surface-border);
+            background: rgba(15, 15, 15, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
             padding: 24px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             opacity: 0;
             transform: translateY(30px);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
+            transform-style: preserve-3d; /* Allows inner elements to pop out */
         }
 
         .tool-card.visible {
             opacity: 1;
             transform: translateY(0);
+            transition: opacity 0.8s ease, transform 0.8s ease;
         }
 
-        .tool-card:hover {
-            transform: translateY(-8px);
-            background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        /* 3D Pop elements inside card */
+        .card-header, .card-desc, .card-footer {
+            transform: translateZ(30px); /* Pops content out during hover */
+            transition: transform 0.3s ease;
         }
 
         .card-header {
@@ -338,13 +380,10 @@
             color: white;
             background: linear-gradient(135deg, #333, #111);
             border: 1px solid var(--surface-border);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        .card-title h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
+        .card-title h3 { font-size: 1.25rem; font-weight: 600; }
         .card-title span {
             font-size: 0.8rem;
             color: var(--text-secondary);
@@ -374,17 +413,8 @@
             padding-top: 16px;
         }
 
-        .pricing {
-            font-size: 0.85rem;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .pricing i {
-            color: #10b981; /* Emerald green */
-        }
+        .pricing { font-size: 0.85rem; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+        .pricing i { color: #10b981; }
 
         .visit-link {
             color: var(--accent-primary);
@@ -396,10 +426,7 @@
             gap: 6px;
             transition: gap 0.3s ease;
         }
-
-        .visit-link:hover {
-            gap: 10px;
-        }
+        .visit-link:hover { gap: 10px; }
 
         /* Animations */
         @keyframes fadeInUp {
@@ -413,9 +440,8 @@
             100% { transform: translateY(0px) rotate(0deg); }
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
-            body{ margin-top: 1.5rem;}
+            body { margin-top: 1.5rem; }
             .hero h1 { font-size: 3rem; }
             .nav-links { display: none; }
             .floating-icon { display: none; }
@@ -424,106 +450,208 @@
 </head>
 <body>
 
-    <div class="ambient-glow"></div>
-    <div class="ambient-glow right"></div>
+    <canvas id="bg-canvas"></canvas>
 
-    <header class="hero">
-        <div class="floating-icon icon-1"><i class="fa-solid fa-robot"></i></div>
-        <div class="floating-icon icon-2"><i class="fa-solid fa-pen-nib"></i></div>
-        <div class="floating-icon icon-3"><i class="fa-solid fa-code"></i></div>
-        <div class="floating-icon icon-4"><i class="fa-solid fa-image"></i></div>
+    <main class="main-content">
+        <div class="ambient-glow"></div>
+        <div class="ambient-glow right"></div>
 
-        <div class="hero-badge">✨ Discover over 1,000+ curated AI tools</div>
-        <h1>Find the perfect AI tool for <span class="text-accent">every workflow</span></h1>
-        <p>AiNexus is your centralized directory to discover, compare, and access the best artificial intelligence tools tailored for your specific needs.</p>
-        
-        <div class="search-container">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="homeSearchInput" placeholder="Search for writing, coding, or image tools...">
-        </div>
+        <header class="hero" data-tilt data-tilt-max="2" data-tilt-speed="400" data-tilt-perspective="1000">
+            <div class="floating-icon icon-1"><i class="fa-solid fa-robot"></i></div>
+            <div class="floating-icon icon-2"><i class="fa-solid fa-pen-nib"></i></div>
+            <div class="floating-icon icon-3"><i class="fa-solid fa-code"></i></div>
+            <div class="floating-icon icon-4"><i class="fa-solid fa-image"></i></div>
 
-        <div class="categories">
-            <div class="category-pill active" data-category="all">All Tools</div>
-            <div class="category-pill" data-category="Text Generation">Text & Writing</div>
-            <div class="category-pill" data-category="Image Generation">Image Generation</div>
-            <div class="category-pill" data-category="Code Assistant">Code Assistants</div>
-            <div class="category-pill" data-category="Video Editing">Audio & Video</div>
-        </div>
-    </header>
-
-    <section class="tools-section">
-        <div class="section-header scroll-animate">
-            <h2>Trending <span class="text-gradient">this week</span></h2>
-            <a href="/home/listings" style="color: var(--text-secondary); text-decoration: none;">View all <i class="fa-solid fa-arrow-right"></i></a>
-        </div>
-
-        <div class="tools-grid">
-            <div class="tool-card scroll-animate" style="transition-delay: 0.1s;">
-                <div class="card-header">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #10a37f, #0d8a6b);"><i class="fa-solid fa-bolt"></i></div>
-                    <div class="card-title">
-                        <h3>ChatGPT</h3>
-                        <span>Text Generation</span>
-                    </div>
-                </div>
-                <p class="card-desc">Advanced language model by OpenAI capable of coding, writing, and complex problem solving.</p>
-                <div class="card-footer">
-                    <div class="pricing"><i class="fa-solid fa-circle-check"></i> Freemium</div>
-                    <a href="https://chat.openai.com" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </div>
-
-            <div class="tool-card scroll-animate" style="transition-delay: 0.2s;">
-                <div class="card-header">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #d946ef, #a855f7);"><i class="fa-solid fa-palette"></i></div>
-                    <div class="card-title">
-                        <h3>Midjourney</h3>
-                        <span>Image Generation</span>
-                    </div>
-                </div>
-                <p class="card-desc">Create highly detailed and artistic images from text prompts using Discord.</p>
-                <div class="card-footer">
-                    <div class="pricing"><i class="fa-solid fa-circle-check" style="color:#6366f1"></i> Paid</div>
-                    <a href="https://midjourney.com" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </div>
-
-            <div class="tool-card scroll-animate" style="transition-delay: 0.3s;">
-                <div class="card-header">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #ea580c);"><i class="fa-solid fa-terminal"></i></div>
-                    <div class="card-title">
-                        <h3>GitHub Copilot</h3>
-                        <span>Code Assistant</span>
-                    </div>
-                </div>
-                <p class="card-desc">Your AI pair programmer that suggests code and entire functions in real-time.</p>
-                <div class="card-footer">
-                    <div class="pricing"><i class="fa-solid fa-circle-check" style="color:#6366f1"></i> Paid</div>
-                    <a href="https://github.com/features/copilot" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
-                </div>
-            </div>
+            <div class="hero-badge">✨ Discover over 1,000+ curated AI tools</div>
+            <h1>Find the perfect AI tool for <span class="text-accent">every workflow</span></h1>
+            <p>AiNexus is your centralized directory to discover, compare, and access the best artificial intelligence tools tailored for your specific needs.</p>
             
-            <div class="tool-card scroll-animate" style="transition-delay: 0.4s;">
-                <div class="card-header">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"><i class="fa-solid fa-brain"></i></div>
-                    <div class="card-title">
-                        <h3>Claude 3</h3>
-                        <span>Text Generation</span>
+            <div class="search-container">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="homeSearchInput" placeholder="Search for writing, coding, or image tools...">
+            </div>
+
+            <div class="categories">
+                <div class="category-pill active" data-category="all">All Tools</div>
+                <div class="category-pill" data-category="Text Generation">Text & Writing</div>
+                <div class="category-pill" data-category="Image Generation">Image Generation</div>
+                <div class="category-pill" data-category="Code Assistant">Code Assistants</div>
+                <div class="category-pill" data-category="Video Editing">Audio & Video</div>
+            </div>
+        </header>
+
+        <section class="tools-section">
+            <div class="section-header scroll-animate">
+                <h2>Trending <span class="text-gradient">this week</span></h2>
+                <a href="/home/listings" style="color: var(--text-secondary); text-decoration: none;">View all <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+
+            <div class="tools-grid">
+                <div class="tool-card scroll-animate" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #10a37f, #0d8a6b);"><i class="fa-solid fa-bolt"></i></div>
+                        <div class="card-title">
+                            <h3>ChatGPT</h3>
+                            <span>Text Generation</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Advanced language model by OpenAI capable of coding, writing, and complex problem solving.</p>
+                    <div class="card-footer">
+                        <div class="pricing"><i class="fa-solid fa-circle-check"></i> Freemium</div>
+                        <a href="https://chat.openai.com" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
-                <p class="card-desc">Anthropic's latest AI model with massive context windows and exceptional reasoning.</p>
-                <div class="card-footer">
-                    <div class="pricing"><i class="fa-solid fa-circle-check"></i> Freemium</div>
-                    <a href="https://claude.ai" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
+
+                <div class="tool-card scroll-animate" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" style="transition-delay: 0.1s;">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #d946ef, #a855f7);"><i class="fa-solid fa-palette"></i></div>
+                        <div class="card-title">
+                            <h3>Midjourney</h3>
+                            <span>Image Generation</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Create highly detailed and artistic images from text prompts using Discord.</p>
+                    <div class="card-footer">
+                        <div class="pricing"><i class="fa-solid fa-circle-check" style="color:#6366f1"></i> Paid</div>
+                        <a href="https://midjourney.com" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <div class="tool-card scroll-animate" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" style="transition-delay: 0.2s;">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #ea580c);"><i class="fa-solid fa-terminal"></i></div>
+                        <div class="card-title">
+                            <h3>GitHub Copilot</h3>
+                            <span>Code Assistant</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Your AI pair programmer that suggests code and entire functions in real-time.</p>
+                    <div class="card-footer">
+                        <div class="pricing"><i class="fa-solid fa-circle-check" style="color:#6366f1"></i> Paid</div>
+                        <a href="https://github.com/features/copilot" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                
+                <div class="tool-card scroll-animate" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" style="transition-delay: 0.3s;">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"><i class="fa-solid fa-brain"></i></div>
+                        <div class="card-title">
+                            <h3>Claude 3</h3>
+                            <span>Text Generation</span>
+                        </div>
+                    </div>
+                    <p class="card-desc">Anthropic's latest AI model with massive context windows and exceptional reasoning.</p>
+                    <div class="card-footer">
+                        <div class="pricing"><i class="fa-solid fa-circle-check"></i> Freemium</div>
+                        <a href="https://claude.ai" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
     <script>
+        // --- 1. THREE.JS BACKGROUND SCENE ---
+        const canvas = document.querySelector('#bg-canvas');
+        const scene = new THREE.Scene();
+        
+        // Deep dark background
+        scene.background = new THREE.Color('#050505'); 
+        // Add subtle fog to fade out distant particles
+        scene.fog = new THREE.FogExp2('#050505', 0.0015);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+        
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.position.z = 50;
+
+        // Create abstract "Neural Network" geometry
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 1500;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 200; // Spread particles across screen
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        // Create material with your accent colors
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.3,
+            color: '#6366f1',
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        // Add an abstract glowing wireframe core
+        const coreGeometry = new THREE.IcosahedronGeometry(15, 1);
+        const coreMaterial = new THREE.MeshBasicMaterial({ 
+            color: '#a855f7', 
+            wireframe: true,
+            transparent: true,
+            opacity: 0.15
+        });
+        const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
+        scene.add(coreMesh);
+
+        // Mouse & Scroll Parallax Variables
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX);
+            mouseY = (event.clientY - windowHalfY);
+        });
+
+        // Animation Loop
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Auto-rotation
+            particlesMesh.rotation.y = elapsedTime * 0.05;
+            coreMesh.rotation.x = elapsedTime * 0.1;
+            coreMesh.rotation.y = elapsedTime * 0.15;
+
+            // Smooth Mouse Parallax Effect
+            targetX = mouseX * 0.001;
+            targetY = mouseY * 0.001;
+            
+            particlesMesh.rotation.y += 0.05 * (targetX - particlesMesh.rotation.y);
+            particlesMesh.rotation.x += 0.05 * (targetY - particlesMesh.rotation.x);
+            
+            // Camera Scroll Effect
+            camera.position.y = -window.scrollY * 0.05;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle Window Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- 2. UI INTERACTION LOGIC ---
+
         // Navbar scroll effect
         window.addEventListener('scroll', () => {
-            const nav = document.getElementById('navbar');
+            const nav = document.getElementById('ainexusNav');
             if (nav) {
                 if (window.scrollY > 50) {
                     nav.classList.add('scrolled');
@@ -533,12 +661,8 @@
             }
         });
 
-        // Intersection Observer for Scroll Animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: "0px 0px -50px 0px"
-        };
-
+        // Intersection Observer for CSS Scroll Animations
+        const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -551,23 +675,22 @@
             observer.observe(el);
         });
         
-        // ---------------------------------- NEW: REDIRECT LOGIC FOR CATEGORY PILLS -----------------------------------------
+        // Redirect Logic
         document.querySelectorAll('.category-pill').forEach(pill => {
             pill.addEventListener('click', function() {
                 const category = this.getAttribute('data-category');
-                // Redirect to the explore page with the category attached to the URL
                 window.location.href = `/home/listings?category=${encodeURIComponent(category)}`;
             });
         });
 
-        // --- NEW: REDIRECT LOGIC FOR SEARCH BAR ---
         const homeSearchInput = document.getElementById('homeSearchInput');
-        homeSearchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                // Redirect to the explore page with the search term attached to the URL
-                window.location.href = `/home/listings?search=${encodeURIComponent(this.value)}`;
-            }
-        });
+        if(homeSearchInput) {
+            homeSearchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    window.location.href = `/home/listings?search=${encodeURIComponent(this.value)}`;
+                }
+            });
+        }
     </script>
 </body>
 </html>
