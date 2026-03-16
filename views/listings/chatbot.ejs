@@ -6,116 +6,225 @@
     <div class="ambient-glow-chat-1"></div>
     <div class="ambient-glow-chat-2"></div>
 
-    <div class="container relative-z">
+    <div class="container chat-container relative-z">
         <div class="chat-header fade-in-up">
             <div class="bot-avatar-wrapper">
                 <i class="fa-solid fa-brain"></i>
             </div>
-            <h2>AiNexus Matchmaker</h2>
-            <p>Tell me what you want to achieve, your budget, and your skill level. I'll find the perfect AI tools for you.</p>
+            <div class="header-text">
+                <h2>AiNexus Matchmaker</h2>
+                <p>Describe your workflow or budget, and I'll find the perfect AI tools.</p>
+            </div>
         </div>
 
         <div class="chat-interface fade-in-up" style="animation-delay: 0.1s;">
+            
             <div class="chat-window" id="chatWindow">
                 <div class="message bot-message">
                     <div class="message-avatar"><i class="fa-solid fa-sparkles"></i></div>
                     <div class="message-bubble">
-                        Hello! I'm the AiNexus Matchmaker. What kind of AI tool are you looking for today? 
-                        <br><br>
-                        <em>Try asking: "I need a free tool to generate background music for my YouTube videos."</em>
+                        Hello! I'm the AiNexus Matchmaker. Tell me what kind of AI tool you are looking for today, or tap one of the suggestions below to get started!
                     </div>
                 </div>
             </div>
 
-            <div class="chat-input-area">
-                <input type="text" id="chatInput" placeholder="Describe your workflow or the tool you need..." autocomplete="off">
-                <button type="button" id="sendBtn" class="btn-send">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
+            <div class="chat-controls">
+                
+                <div class="quick-prompts-wrapper">
+                    <div class="quick-prompts" id="quickPrompts">
+                        <button class="prompt-chip" data-prompt="I need a free tool to generate background music for YouTube.">🎵 Free Music Generators</button>
+                        <button class="prompt-chip" data-prompt="What are the best alternatives to ChatGPT for coding?">💻 ChatGPT Coding Alternatives</button>
+                        <button class="prompt-chip" data-prompt="I have a $20/month budget for image generation. Recommendations?">🎨 $20/mo Image AI</button>
+                    </div>
+                </div>
+
+                <div class="chat-input-area">
+                    <button type="button" id="voiceBtn" class="btn-voice" title="Speak your prompt">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    
+                    <input type="text" id="chatInput" placeholder="Message AiNexus Matchmaker..." autocomplete="off">
+                    
+                    <button type="button" id="sendBtn" class="btn-send" disabled>
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
 </section>
 
 <style>
-    /* Base Setup */
+    /* ==========================================================================
+       BASE SETUP & LAYOUT
+       ========================================================================== */
     .chat-section {
         position: relative; min-height: 100vh; background-color: #030305;
-        padding: 100px 0 60px; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden;
+        padding: 100px 0 40px; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden;
+        display: flex; flex-direction: column;
     }
     .relative-z { position: relative; z-index: 2; }
-
-    /* Ambient Glow */
-    .ambient-glow-chat-1 { position: absolute; top: 0%; left: 20%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 60%); filter: blur(60px); z-index: 0; pointer-events: none; }
-    .ambient-glow-chat-2 { position: absolute; bottom: -10%; right: -10%; width: 40vw; height: 40vw; background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 60%); filter: blur(60px); z-index: 0; pointer-events: none; }
-
-    /* Header */
-    .chat-header { text-align: center; margin-bottom: 30px; }
-    .bot-avatar-wrapper { width: 64px; height: 64px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #fff; margin: 0 auto 16px; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); }
-    .chat-header h2 { font-size: 2.2rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin-bottom: 8px; }
-    .chat-header p { color: #94a3b8; font-size: 1rem; max-width: 500px; margin: 0 auto; }
-
-    /* Chat Interface */
-    .chat-interface {
-        max-width: 800px; margin: 0 auto; background: rgba(15, 15, 20, 0.6);
-        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px;
-        overflow: hidden; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-        display: flex; flex-direction: column; height: 65vh; min-height: 500px;
+    
+    .chat-container {
+        display: flex; flex-direction: column; flex-grow: 1; height: 100%;
+        max-width: 900px; margin: 0 auto; width: 100%;
     }
 
-    /* Chat Window */
+    /* Ambient Glow */
+    .ambient-glow-chat-1 { position: absolute; top: 0%; left: 10%; width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 60%); filter: blur(60px); z-index: 0; pointer-events: none; }
+    .ambient-glow-chat-2 { position: absolute; bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 60%); filter: blur(60px); z-index: 0; pointer-events: none; }
+
+    /* ==========================================================================
+       HEADER
+       ========================================================================== */
+    .chat-header { text-align: center; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; }
+    .bot-avatar-wrapper { width: 56px; height: 56px; background: linear-gradient(135deg, #8b5cf6, #06b6d4); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; margin-bottom: 12px; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4); }
+    .chat-header h2 { font-size: 1.8rem; font-weight: 800; color: #fff; letter-spacing: -0.5px; margin-bottom: 4px; }
+    .chat-header p { color: #94a3b8; font-size: 0.95rem; max-width: 450px; margin: 0 auto; }
+
+    /* ==========================================================================
+       CHAT INTERFACE
+       ========================================================================== */
+    .chat-interface {
+        background: rgba(15, 15, 20, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4); display: flex; flex-direction: column;
+        height: 65vh; min-height: 500px; max-height: 800px;
+    }
+
+    /* Window & Messages */
     .chat-window {
-        flex-grow: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;
+        flex-grow: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px;
         scroll-behavior: smooth;
     }
 
-    /* Message Styles */
     .message { display: flex; gap: 12px; max-width: 85%; animation: slideIn 0.3s ease forwards; }
-    .message-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+    .message-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0; }
     
     .bot-message { align-self: flex-start; }
-    .bot-message .message-avatar { background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
+    .bot-message .message-avatar { background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.3); }
     .bot-message .message-bubble { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px 16px 16px 16px; color: #e4e4e7; }
 
     .user-message { align-self: flex-end; flex-direction: row-reverse; }
-    .user-message .message-avatar { background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
-    .user-message .message-bubble { background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(139, 92, 246, 0.15)); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px 4px 16px 16px; color: #fff; }
+    .user-message .message-avatar { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .user-message .message-bubble { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px 4px 16px 16px; color: #fff; }
 
     .message-bubble { padding: 14px 18px; font-size: 0.95rem; line-height: 1.6; word-wrap: break-word; }
     .message-bubble p { margin-bottom: 10px; }
     .message-bubble p:last-child { margin-bottom: 0; }
-    .message-bubble ul { padding-left: 20px; margin-bottom: 10px; }
+    .message-bubble ul, .message-bubble ol { padding-left: 20px; margin-bottom: 10px; }
+    .message-bubble a { color: #22d3ee; text-decoration: underline; text-underline-offset: 2px; }
     .message-bubble strong { color: #fff; font-weight: 600; }
 
-    /* Chat Input Area */
-    .chat-input-area {
-        padding: 20px; background: rgba(10, 10, 15, 0.8); border-top: 1px solid rgba(255, 255, 255, 0.08);
-        display: flex; gap: 12px; align-items: center;
-    }
-    .chat-input-area input {
-        flex-grow: 1; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 50px; color: #fff; padding: 14px 20px; font-size: 1rem; transition: all 0.3s;
-    }
-    .chat-input-area input:focus { outline: none; border-color: #8b5cf6; background: rgba(255, 255, 255, 0.06); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); }
-    
-    .btn-send {
-        width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #a855f7);
-        border: none; color: #fff; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
-    }
-    .btn-send:hover { transform: scale(1.05) translateY(-2px); box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5); }
-    .btn-send:disabled { background: #3f3f46; cursor: not-allowed; box-shadow: none; transform: none; color: #a1a1aa; }
-
     /* Typing Indicator */
-    .typing-indicator { display: flex; gap: 4px; padding: 10px 14px; }
+    .typing-indicator { display: flex; gap: 4px; padding: 12px 16px; }
     .dot { width: 6px; height: 6px; background: #a1a1aa; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
     .dot:nth-child(1) { animation-delay: -0.32s; }
     .dot:nth-child(2) { animation-delay: -0.16s; }
 
+    /* ==========================================================================
+       BOTTOM CONTROLS (Prompts & Input)
+       ========================================================================== */
+    .chat-controls { border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(10, 10, 15, 0.5); border-radius: 0 0 24px 24px; padding: 16px; }
+
+    /* Quick Prompts */
+    .quick-prompts-wrapper { width: 100%; overflow-x: auto; margin-bottom: 12px; scrollbar-width: none; }
+    .quick-prompts-wrapper::-webkit-scrollbar { display: none; }
+    .quick-prompts { display: flex; gap: 10px; width: max-content; padding-bottom: 4px; }
+    
+    .prompt-chip {
+        background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1); color: #d4d4d8;
+        padding: 8px 16px; border-radius: 50px; font-size: 0.85rem; white-space: nowrap; cursor: pointer; transition: all 0.2s;
+    }
+    .prompt-chip:hover { background: rgba(255, 255, 255, 0.1); color: #fff; border-color: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+
+    /* Input Area */
+    .chat-input-area {
+        display: flex; gap: 10px; align-items: flex-end; background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 8px; transition: border-color 0.3s;
+    }
+    .chat-input-area:focus-within { border-color: #8b5cf6; background: rgba(255, 255, 255, 0.05); }
+    
+    .chat-input-area input {
+        flex-grow: 1; background: transparent; border: none; color: #fff;
+        padding: 10px 8px; font-size: 1rem; align-self: center;
+    }
+    .chat-input-area input:focus { outline: none; }
+    .chat-input-area input::placeholder { color: #71717a; }
+
+    /* Buttons */
+    .btn-voice, .btn-send {
+        width: 40px; height: 40px; border-radius: 50%; border: none; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s;
+    }
+    
+    .btn-voice { background: transparent; color: #a1a1aa; font-size: 1.1rem; }
+    .btn-voice:hover { color: #c084fc; background: rgba(139, 92, 246, 0.1); }
+    .btn-voice.listening { background: rgba(239, 68, 68, 0.2); color: #ef4444; animation: pulseMic 1.5s infinite; }
+
+    .btn-send { background: #fff; color: #000; font-size: 1rem; }
+    .btn-send:not(:disabled):hover { transform: scale(1.05); box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3); }
+    .btn-send:disabled { background: rgba(255, 255, 255, 0.1); color: #71717a; cursor: not-allowed; }
+
+    /* ==========================================================================
+       ANIMATIONS & MOBILE ADJUSTMENTS
+       ========================================================================== */
     @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-    .fade-in-up { opacity: 0; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes pulseMic { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    
+    .fade-in-up { opacity: 0; animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+
+    /* Strict Mobile Responsiveness */
+   /* ==========================================================================
+       STRICT MOBILE RESPONSIVENESS (Optimized Spacing)
+       ========================================================================== */
+       @media (max-width: 768px) {
+        /* 1. Remove excess padding from the outer section */
+        .chat-section { 
+            padding: 90px 0 0; /* 0 padding on the sides */
+        }
+        
+        /* 2. Override Bootstrap's default container padding to reclaim screen space */
+        .container.chat-container { 
+            padding: 0 8px; /* Just a tiny 8px gap on the edges */
+            max-width: 100%;
+        }
+        
+        /* 3. Compact the header */
+        .chat-header { 
+            margin-bottom: 12px; 
+            flex-direction: row; 
+            text-align: left; 
+            gap: 12px; 
+            align-items: center; 
+            padding: 0 8px;
+        }
+        .bot-avatar-wrapper { width: 40px; height: 40px; margin-bottom: 0; font-size: 1.1rem; }
+        .chat-header h2 { font-size: 1.3rem; margin-bottom: 0; }
+        .chat-header p { display: none; /* Hide subtitle to save vertical space */ }
+        
+        /* 4. Maximize the chat interface area */
+        .chat-interface {
+            height: calc(100vh - 145px); /* Perfect height for mobile Safari/Chrome */
+            border-radius: 20px 20px 0 0; /* Flat on the bottom like a native app */
+            border-bottom: none;
+        }
+        
+        /* 5. Let messages stretch wider so text doesn't get cramped */
+        .chat-window { padding: 16px 12px; gap: 16px; }
+        .message { max-width: 92%; } /* Increased from 85% */
+        .message-bubble { padding: 12px 14px; font-size: 0.95rem; }
+        
+        /* 6. Tighten the bottom control bar */
+        .chat-controls { padding: 10px; border-radius: 0; }
+        .chat-input-area { padding: 6px; border-radius: 16px; }
+        .chat-input-area input { font-size: 0.95rem; padding: 8px 4px; }
+        
+        .btn-voice, .btn-send { width: 36px; height: 36px; font-size: 1rem; }
+    }
 </style>
 
 <script>
@@ -123,37 +232,32 @@
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
         const chatWindow = document.getElementById('chatWindow');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const quickPrompts = document.querySelectorAll('.prompt-chip');
 
-        // Function to create and append a new message bubble
+        // --- 1. UI LOGIC ---
+        
+        // Toggle Send Button State
+        chatInput.addEventListener('input', () => {
+            sendBtn.disabled = chatInput.value.trim() === '';
+        });
+
         function appendMessage(sender, text, isMarkdown = false) {
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
-            
             const icon = sender === 'user' ? 'fa-user' : 'fa-sparkles';
-            
-            // If it's the bot, parse the Markdown. If it's the user, just use raw text.
             const content = isMarkdown ? marked.parse(text) : text;
 
-            msgDiv.innerHTML = `
-                <div class="message-avatar"><i class="fa-solid ${icon}"></i></div>
-                <div class="message-bubble">${content}</div>
-            `;
-            
+            msgDiv.innerHTML = `<div class="message-avatar"><i class="fa-solid ${icon}"></i></div><div class="message-bubble">${content}</div>`;
             chatWindow.appendChild(msgDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight; // Auto-scroll to bottom
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        // Show typing animation
         function showTyping() {
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message', 'bot-message');
             msgDiv.id = 'typingIndicator';
-            msgDiv.innerHTML = `
-                <div class="message-avatar"><i class="fa-solid fa-sparkles"></i></div>
-                <div class="message-bubble typing-indicator">
-                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-                </div>
-            `;
+            msgDiv.innerHTML = `<div class="message-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="message-bubble typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
             chatWindow.appendChild(msgDiv);
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
@@ -163,22 +267,23 @@
             if (indicator) indicator.remove();
         }
 
-        // Handle sending the message to the backend
-        async function sendMessage() {
-            const message = chatInput.value.trim();
+        // --- 2. SEND MESSAGE LOGIC ---
+        
+        async function sendMessage(textOverride = null) {
+            const message = textOverride || chatInput.value.trim();
             if (!message) return;
 
-            // 1. Show User Message
             appendMessage('user', message);
             chatInput.value = '';
-            
-            // 2. Disable input and show typing indicator
-            chatInput.disabled = true;
             sendBtn.disabled = true;
+            chatInput.disabled = true;
+            voiceBtn.disabled = true;
+            
+            // Hide quick prompts once conversation starts
+            document.querySelector('.quick-prompts-wrapper').style.display = 'none';
             showTyping();
 
             try {
-                // 3. Call our Backend Route
                 const response = await fetch('/home/chatbot/ask', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -189,7 +294,6 @@
                 hideTyping();
 
                 if (response.ok) {
-                    // 4. Show Bot Reply (pass true to parse Markdown!)
                     appendMessage('bot', data.reply, true);
                 } else {
                     appendMessage('bot', "Error: " + (data.error || "Something went wrong."));
@@ -198,17 +302,70 @@
                 hideTyping();
                 appendMessage('bot', "I'm having trouble connecting to my servers right now.");
             } finally {
-                // 5. Re-enable input
                 chatInput.disabled = false;
-                sendBtn.disabled = false;
+                voiceBtn.disabled = false;
                 chatInput.focus();
             }
         }
 
-        // Event Listeners
-        sendBtn.addEventListener('click', sendMessage);
+        sendBtn.addEventListener('click', () => sendMessage());
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
+
+        // Quick Prompts Click Handler
+        quickPrompts.forEach(btn => {
+            btn.addEventListener('click', () => {
+                sendMessage(btn.getAttribute('data-prompt'));
+            });
+        });
+
+        // --- 3. VOICE TO TEXT LOGIC ---
+        
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            voiceBtn.style.display = 'none'; // Hide if unsupported
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            const micIcon = voiceBtn.querySelector('i');
+
+            recognition.onstart = function() {
+                voiceBtn.classList.add('listening');
+                chatInput.placeholder = "Listening...";
+                micIcon.classList.replace('fa-microphone', 'fa-ear-listen');
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                chatInput.value = transcript;
+                sendBtn.disabled = false;
+                // Optional: Auto-send after speaking by uncommenting below:
+                // sendMessage(); 
+            };
+
+            recognition.onend = function() {
+                voiceBtn.classList.remove('listening');
+                chatInput.placeholder = "Message AiNexus Matchmaker...";
+                micIcon.classList.replace('fa-ear-listen', 'fa-microphone');
+            };
+
+            recognition.onerror = function() {
+                voiceBtn.classList.remove('listening');
+                chatInput.placeholder = "Microphone error. Type instead.";
+                setTimeout(() => chatInput.placeholder = "Message AiNexus Matchmaker...", 3000);
+            };
+
+            voiceBtn.addEventListener('click', () => {
+                if (voiceBtn.classList.contains('listening')) {
+                    recognition.stop();
+                } else {
+                    recognition.start();
+                }
+            });
+        }
     });
 </script>
