@@ -15,6 +15,7 @@ const {storage} = require("../cloudConfig.js");
 const upload = multer({ storage }); //multer will store files in cloudinary storage
 
 
+
 // home route
 router.get("/", validateListing,wrapAsync(listingController.home));
 
@@ -30,6 +31,14 @@ router.get("/listings/new", isLoggedIn, listingController.new )
 
 //   chatbot route-------------------------------------------------------------------------------chatbot
 router.get("/chatbot", listingController.chatbot );
+
+// NEW route to handle the actual AI conversation API calls
+router.post("/chatbot/ask", listingController.generateChatResponse);
+
+
+
+// compare route
+router.get("/listings/compare", listingController.compare);
 
 // show route
 router
@@ -75,6 +84,8 @@ router.delete("/listings/:id",
     isOwner, 
     wrapAsync(listingController.delete));
     
+
+
 
    
 

@@ -7,6 +7,7 @@
   <div class="container directory-container relative-z">
     
     <div class="directory-header fade-in-up">
+      <div class="badge-subtle mb-3 mx-auto">Directory Hub</div>
       <h1 class="gradient-title">Explore AI Tools</h1>
       <p class="text-muted-custom">Discover, compare, and integrate the perfect AI models for your workflow.</p>
     </div>
@@ -14,7 +15,12 @@
     <div class="search-filter-hub fade-in-up" style="animation-delay: 0.1s;">
       <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" id="searchInput" placeholder="Search AI tools by name or description...">
+        <input type="text" id="searchInput" placeholder="Search prompts, tools, or descriptions...">
+        
+        <button type="button" id="voiceSearchBtn" class="voice-search-btn" title="Search by Voice">
+          <i class="fa-solid fa-microphone"></i>
+        </button>
+        
       </div>
       
       <div class="filter-controls">
@@ -34,8 +40,9 @@
         </div>
 
         <div class="custom-select-wrapper">
-          <i class="fa-solid fa-arrow-down-a-z select-icon"></i>
+          <i class="fa-solid fa-arrow-down-wide-short select-icon"></i>
           <select id="sortFilter">
+            <option value="highest-rated">Highest Rated 🔥</option>
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
             <option value="a-z">Name (A-Z)</option>
@@ -47,284 +54,302 @@
 
     <div class="row g-4" id="toolsGrid">
       <% for(let listing of allListings) { %>
+        
+        <% 
+          let totalRating = 0;
+          let avgRating = 0;
+          let reviewCount = listing.reviews ? listing.reviews.length : 0;
+          if(reviewCount > 0) {
+            listing.reviews.forEach(review => {
+              totalRating += review.rating;
+            });
+            avgRating = (totalRating / reviewCount).toFixed(1);
+          }
+        %>
+
         <div class="col-xl-4 col-lg-4 col-md-6 tool-card-col" 
              data-name="<%= listing.name.toLowerCase() %>" 
              data-desc="<%= listing.description.toLowerCase() %>"
              data-category="<%= listing.category %>"
+             data-rating="<%= avgRating %>"
              data-date="<%= new Date(listing._id.getTimestamp()).getTime() %>">
           
-          <div class="ainexus-tool-card h-100 fade-in-up-stagger">
-            
-            <div class="card-top-row">
-              <div class="tool-icon-wrapper">
-                <img 
-                  src="<%= listing.logo && listing.logo.url ? listing.logo.url : 'https://placehold.co/200x200/1e1b4b/a855f7?text=AI' %>" 
-                  alt="<%= listing.name %> logo"
-                  loading="lazy"
-                >
+          <div class="spotlight-card h-100 fade-in-up-stagger">
+            <div class="card-inner">
+              
+              <div class="card-top-row">
+                <div class="tool-icon-wrapper">
+                  <img 
+                    src="<%= listing.logo && listing.logo.url ? listing.logo.url : 'https://placehold.co/200x200/1e1b4b/a855f7?text=AI' %>" 
+                    alt="<%= listing.name %> logo" loading="lazy">
+                </div>
+                <div class="card-badges text-end">
+                  <% if(avgRating >= 4.5 && reviewCount > 0) { %>
+                    <span class="top-rated-badge mb-2 d-inline-block"><i class="fa-solid fa-trophy me-1"></i> Top Rated</span>
+                  <% } %>
+                  <div>
+                    <span class="pricing-pill <%= listing.pricingModel === 'Free' ? 'free-tier' : 'paid-tier' %>">
+                      <i class="fa-solid fa-tag me-1"></i> <%= listing.pricingModel || 'Unknown' %>
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div class="card-badges">
-                <span class="category-pill">
-                  <i class="fa-solid fa-layer-group me-1"></i> <%= listing.category %>
-                </span>
-                <span class="pricing-pill <%= listing.pricingModel === 'Free' ? 'free-tier' : 'paid-tier' %>">
-                  <i class="fa-solid fa-tag me-1"></i> <%= listing.pricingModel || 'Unknown' %>
-                </span>
+
+              <div class="card-content flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h3 class="tool-title mb-0"><%= listing.name %></h3>
+                  <span class="category-text"><%= listing.category %></span>
+                </div>
+                
+                <div class="review-stars mb-3">
+                  <% if(reviewCount > 0) { %>
+                    <span class="star-rating">
+                      <i class="fa-solid fa-star"></i> <%= avgRating %>
+                    </span>
+                    <span class="review-count">(<%= reviewCount %> reviews)</span>
+                  <% } else { %>
+                    <span class="review-count">No reviews yet</span>
+                  <% } %>
+                </div>
+
+                <p class="tool-desc">
+                  <%= listing.description.length > 100 ? listing.description.substring(0, 100) + '...' : listing.description %>
+                </p>
+
+                <% if(listing.features && listing.features.length > 0) { %>
+                  <div class="feature-tags mb-3">
+                    <% for(let i = 0; i < Math.min(3, listing.features.length); i++) { %>
+                      <span class="feature-tag"><i class="fa-solid fa-check text-accent-cyan"></i> <%= listing.features[i] %></span>
+                    <% } %>
+                    <% if(listing.features.length > 3) { %>
+                      <span class="feature-tag">+<%= listing.features.length - 3 %> more</span>
+                    <% } %>
+                  </div>
+                <% } %>
               </div>
-            </div>
 
-            <div class="card-content">
-              <h3 class="tool-title"><%= listing.name %></h3>
-              <p class="tool-desc">
-                <%= listing.description.length > 110 ? listing.description.substring(0, 110) + '...' : listing.description %>
-              </p>
-            </div>
+              <div class="card-actions mt-3 pt-3 border-top-subtle">
+                <a href="/home/listings/<%= listing._id %>" class="btn-glass-sm text-center flex-grow-1">
+                  Details
+                </a>
+                <a href="<%= listing.websiteUrl %>" target="_blank" rel="noopener noreferrer" class="btn-glow-sm text-center flex-grow-1">
+                  Visit <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+                </a>
+              </div>
 
-            <div class="card-actions mt-auto">
-              <a href="/home/listings/<%= listing._id %>" class="btn-glass-sm w-100 text-center">
-                View Details
-              </a>
-              <a href="<%= listing.websiteUrl %>" target="_blank" rel="noopener noreferrer" class="btn-glow-sm w-100 text-center">
-                Visit <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
-              </a>
             </div>
-
           </div>
         </div>
       <% } %>
     </div>
     
-    <div id="noResults" class="text-center py-5 d-none">
-      <i class="fa-solid fa-ghost fs-1 text-muted-custom mb-3"></i>
-      <h4 class="text-white">No AI tools found</h4>
-      <p class="text-muted-custom">Try adjusting your search or category filter.</p>
+    <div id="noResults" class="empty-state py-5 d-none">
+      <div class="empty-icon"><i class="fa-solid fa-ghost"></i></div>
+      <h4>No AI tools found</h4>
+      <p>Try adjusting your search or category filter.</p>
+      <button class="btn-glass-sm mt-3" onclick="resetFilters()">Clear Filters</button>
     </div>
 
   </div>
 </section>
 
 <style>
-  /* Base Section Setup */
-  .directory-section {
-    position: relative;
-    min-height: 100vh;
-    background-color: #050505;
-    padding: 120px 0 80px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    overflow: hidden;
+
+
+  /* --- Voice Search Button Styles --- */
+  .voice-search-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #a1a1aa;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
   }
 
-  .relative-z {
-    position: relative;
-    z-index: 2;
+  .voice-search-btn:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+    border-color: rgba(99, 102, 241, 0.3);
   }
+
+  /* The pulsing effect when recording */
+  .voice-search-btn.listening {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.5);
+    animation: pulseMic 1.5s infinite;
+  }
+
+  @keyframes pulseMic {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  }
+
+
+
+  /* ==========================================================================
+     BASE SECTION SETUP
+     ========================================================================== */
+  .directory-section {
+    position: relative; min-height: 100vh; background-color: #030305;
+    padding: 120px 0 80px; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden;
+  }
+  .relative-z { position: relative; z-index: 2; }
+  .border-top-subtle { border-top: 1px solid rgba(255, 255, 255, 0.08); }
 
   /* Ambient Backgrounds */
   .ambient-glow-dir-1 {
-    position: absolute;
-    top: 10%; left: -10%;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+    position: absolute; top: 10%; left: -10%; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
     filter: blur(60px); z-index: 0; pointer-events: none;
   }
-
   .ambient-glow-dir-2 {
-    position: absolute;
-    bottom: 10%; right: -10%;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+    position: absolute; bottom: 10%; right: -10%; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
     filter: blur(60px); z-index: 0; pointer-events: none;
   }
 
-  /* Header */
-  .directory-header {
-    text-align: center;
-    margin-bottom: 2.5rem;
+  /* Header & Typography */
+  .directory-header { text-align: center; margin-bottom: 3rem; }
+  .badge-subtle {
+    display: inline-block; padding: 6px 14px; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 50px; font-size: 0.8rem;
+    color: #a1a1aa; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
   }
-
   .gradient-title {
-    font-size: 3rem; font-weight: 800; letter-spacing: -1px;
+    font-size: 3.5rem; font-weight: 800; letter-spacing: -1px;
     background: linear-gradient(135deg, #ffffff, #a1a1aa);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin-bottom: 10px;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px;
   }
+  .text-muted-custom { color: #94a3b8; font-size: 1.15rem; max-width: 600px; margin: 0 auto; }
+  .text-accent-cyan { color: #06b6d4; }
 
-  .text-muted-custom { color: #a1a1aa; font-size: 1.1rem; }
-
-  /* --- Search & Filter Hub --- */
+  /* ==========================================================================
+     SEARCH & FILTER HUB
+     ========================================================================== */
   .search-filter-hub {
-    display: flex;
-    gap: 15px;
-    background: rgba(20, 20, 20, 0.6);
+    display: flex; gap: 15px; background: rgba(15, 15, 20, 0.6);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 15px;
-    margin-bottom: 40px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-    align-items: center;
-    flex-wrap: wrap;
+    border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px;
+    padding: 16px; margin-bottom: 40px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    align-items: center; flex-wrap: wrap;
   }
 
-  .search-wrapper {
-    flex: 1;
-    min-width: 250px;
-    position: relative;
-  }
-
-  .search-icon {
-    position: absolute;
-    left: 16px; top: 50%; transform: translateY(-50%);
-    color: #71717a;
-  }
-
+  .search-wrapper { flex: 1; min-width: 250px; position: relative; }
+  .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #71717a; }
   .search-wrapper input {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    color: #fff;
-    padding: 12px 16px 12px 42px;
-    font-size: 0.95rem;
-    transition: all 0.3s;
+    width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px; color: #fff; padding: 14px 16px 14px 45px; font-size: 1rem; transition: all 0.3s;
   }
-
   .search-wrapper input:focus {
-    outline: none; border-color: #a855f7;
-    background: rgba(255, 255, 255, 0.06);
-    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+    outline: none; border-color: #8b5cf6; background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
   }
 
-  .filter-controls {
-    display: flex; gap: 10px;
-  }
-
-  .custom-select-wrapper {
-    position: relative;
-    min-width: 160px;
-  }
-
-  .select-icon {
-    position: absolute;
-    left: 12px; top: 50%; transform: translateY(-50%);
-    color: #a1a1aa; font-size: 0.85rem; pointer-events: none;
-  }
-
-  .custom-select-wrapper select {
-    width: 100%;
-    appearance: none; cursor: pointer;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    color: #e4e4e7;
-    padding: 12px 35px 12px 32px;
-    font-size: 0.9rem; font-weight: 500;
-    transition: all 0.3s;
-  }
-
-  .custom-select-wrapper select:focus {
-    outline: none; border-color: #a855f7;
-  }
+  .filter-controls { display: flex; gap: 12px; }
+  .custom-select-wrapper { position: relative; min-width: 170px; }
+  .select-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #a1a1aa; pointer-events: none; }
   
+  .custom-select-wrapper select {
+    width: 100%; appearance: none; cursor: pointer; background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: #e4e4e7;
+    padding: 14px 35px 14px 38px; font-size: 0.95rem; font-weight: 500; transition: all 0.3s;
+  }
+  .custom-select-wrapper select:focus { outline: none; border-color: #8b5cf6; }
   .custom-select-wrapper::after {
     content: '\f0d7'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
-    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-    color: #71717a; pointer-events: none; font-size: 0.8rem;
+    position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #71717a; pointer-events: none;
   }
 
-  /* --- Premium Glassmorphic Card --- */
-  .ainexus-tool-card {
+  /* ==========================================================================
+     SPOTLIGHT TOOL CARDS
+     ========================================================================== */
+  .spotlight-card {
+    position: relative; background: #0a0a0a; border-radius: 24px; padding: 1px;
+    overflow: hidden; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex; flex-direction: column;
-    background: rgba(20, 20, 20, 0.6);
-    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px; padding: 24px;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   }
-
-  .ainexus-tool-card:hover {
-    transform: translateY(-8px); border-color: rgba(168, 85, 247, 0.4);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(168, 85, 247, 0.1);
-    background: rgba(25, 25, 25, 0.8);
+  .spotlight-card:hover { transform: translateY(-6px); }
+  
+  .spotlight-card::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.1), transparent 40%);
+    z-index: 0; opacity: 0; transition: opacity 0.3s ease;
   }
+  .spotlight-card:hover::before { opacity: 1; }
 
-  /* Card Top Row (Logo & Badges) */
-  .card-top-row {
-    display: flex; justify-content: space-between; align-items: flex-start;
-    margin-bottom: 20px;
+  .card-inner {
+    position: relative; background: #0f1015; border-radius: 23px; padding: 24px;
+    height: 100%; z-index: 1; display: flex; flex-direction: column;
+    border: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;
   }
+  .spotlight-card:hover .card-inner { background: #13141a; }
 
+  /* Card Elements */
+  .card-top-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
   .tool-icon-wrapper {
-    width: 60px; height: 60px;
-    border-radius: 14px; overflow: hidden;
-    background: #0f0f11; border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5); flex-shrink: 0;
+    width: 56px; height: 56px; border-radius: 14px; overflow: hidden;
+    background: #050505; border: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0;
   }
-
   .tool-icon-wrapper img { width: 100%; height: 100%; object-fit: cover; }
 
-  .card-badges {
-    display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
-  }
+  .top-rated-badge { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; padding: 4px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
+  .pricing-pill { padding: 4px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 600; border: 1px solid; }
+  .free-tier { background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2); }
+  .paid-tier { background: rgba(139, 92, 246, 0.1); color: #c084fc; border-color: rgba(139, 92, 246, 0.2); }
 
-  .category-pill {
-    background: rgba(99, 102, 241, 0.15); color: #818cf8;
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    padding: 4px 10px; border-radius: 50px;
-    font-size: 0.7rem; font-weight: 600;
-  }
-
-  .pricing-pill {
-    padding: 4px 10px; border-radius: 50px;
-    font-size: 0.7rem; font-weight: 600; border: 1px solid;
-  }
+  .tool-title { color: #ffffff; font-size: 1.2rem; font-weight: 700; letter-spacing: -0.3px; }
+  .category-text { font-size: 0.75rem; color: #06b6d4; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
   
-  .free-tier { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
-  .paid-tier { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+  /* Dynamic Stars */
+  .review-stars { display: flex; align-items: center; gap: 8px; }
+  .star-rating { color: #fbbf24; font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+  .review-count { color: #71717a; font-size: 0.8rem; }
 
-  /* Card Body */
-  .tool-title {
-    color: #ffffff; font-size: 1.3rem; font-weight: 700;
-    margin-bottom: 10px; letter-spacing: -0.3px;
-  }
+  .tool-desc { color: #a1a1aa; font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px; flex-grow: 1; }
 
-  .tool-desc {
-    color: #a1a1aa; font-size: 0.9rem; line-height: 1.6; margin-bottom: 24px;
-  }
+  /* Feature Tags */
+  .feature-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .feature-tag { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; color: #d4d4d8; display: flex; align-items: center; gap: 4px; }
 
-  /* Card Actions */
+  /* Buttons */
   .card-actions { display: flex; gap: 12px; }
-
   .btn-glass-sm {
-    background: rgba(255, 255, 255, 0.05); color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 10px 16px; border-radius: 12px;
-    font-size: 0.9rem; font-weight: 600; text-decoration: none;
-    transition: all 0.3s ease;
+    background: transparent; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 10px 16px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: all 0.3s ease;
   }
-
-  .btn-glass-sm:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #ffffff; }
+  .btn-glass-sm:hover { background: rgba(255, 255, 255, 0.05); color: #ffffff; }
 
   .btn-glow-sm {
-    background: linear-gradient(135deg, #6366f1, #a855f7); color: #ffffff;
-    border: none; padding: 10px 16px; border-radius: 12px;
-    font-size: 0.9rem; font-weight: 600; text-decoration: none;
-    transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    background: #fff; color: #000; border: none; padding: 10px 16px; border-radius: 12px;
+    font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: all 0.3s ease;
   }
+  .btn-glow-sm:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(255,255,255,0.3); color: #000; }
 
-  .btn-glow-sm:hover {
-    transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.5); color: #ffffff;
-  }
+  /* Empty State */
+  .empty-state { text-align: center; padding: 60px 20px; background: rgba(255,255,255,0.02); border-radius: 20px; border: 1px dashed rgba(255,255,255,0.05); margin-top: 20px; }
+  .empty-icon { font-size: 3rem; color: #3f3f46; margin-bottom: 16px; }
+  .empty-state h4 { color: #fff; margin-bottom: 8px; }
+  .empty-state p { color: #a1a1aa; font-size: 0.95rem; }
 
   /* Animations */
   .fade-in-up { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
   .fade-in-up-stagger { opacity: 0; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; animation-delay: 0.2s; }
   @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
 
-  /* Mobile Tweaks */
   @media (max-width: 768px) {
-    .gradient-title { font-size: 2.2rem; }
+    .gradient-title { font-size: 2.5rem; }
     .card-actions { flex-direction: column; }
     .filter-controls { width: 100%; flex-wrap: wrap; }
     .custom-select-wrapper { flex: 1; min-width: 140px; }
@@ -333,93 +358,31 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- 1. Spotlight Hover Effect Logic ---
+    const cards = document.querySelectorAll('.spotlight-card');
+    cards.forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        });
+    });
+
+    // --- 2. Live Search, Filter, and Sort Logic ---
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
     const sortFilter = document.getElementById('sortFilter');
     const toolsGrid = document.getElementById('toolsGrid');
     const noResultsMsg = document.getElementById('noResults');
-    const cards = Array.from(document.querySelectorAll('.tool-card-col'));
+    const toolCards = Array.from(document.querySelectorAll('.tool-card-col'));
 
-    function filterAndSortTools() {
-      const searchTerm = searchInput.value.toLowerCase();
-      const selectedCategory = categoryFilter.value;
-      const sortBy = sortFilter.value;
-
-      let visibleCount = 0;
-      let visibleCards = [];
-
-      // 1. Filtering
-      cards.forEach(card => {
-        const name = card.getAttribute('data-name');
-        const desc = card.getAttribute('data-desc');
-        const category = card.getAttribute('data-category');
-
-        const matchesSearch = name.includes(searchTerm) || desc.includes(searchTerm);
-        const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
-
-        if (matchesSearch && matchesCategory) {
-          card.classList.remove('d-none');
-          visibleCards.push(card);
-          visibleCount++;
-        } else {
-          card.classList.add('d-none');
-        }
-      });
-
-      // 2. Sorting (re-appending children in order)
-      visibleCards.sort((a, b) => {
-        const nameA = a.getAttribute('data-name');
-        const nameB = b.getAttribute('data-name');
-        const dateA = parseInt(a.getAttribute('data-date'));
-        const dateB = parseInt(b.getAttribute('data-date'));
-
-        if (sortBy === 'a-z') return nameA.localeCompare(nameB);
-        if (sortBy === 'z-a') return nameB.localeCompare(nameA);
-        if (sortBy === 'newest') return dateB - dateA; // Highest timestamp first
-        if (sortBy === 'oldest') return dateA - dateB;
-      });
-
-      // Append sorted elements back to the grid
-      visibleCards.forEach(card => toolsGrid.appendChild(card));
-
-      // 3. Show/Hide Empty State
-      if (visibleCount === 0) {
-        noResultsMsg.classList.remove('d-none');
-      } else {
-        noResultsMsg.classList.add('d-none');
-      }
-    }
-
-    // Attach Event Listeners
-    searchInput.addEventListener('input', filterAndSortTools);
-    categoryFilter.addEventListener('change', filterAndSortTools);
-    sortFilter.addEventListener('change', filterAndSortTools);
-  });
-</script>
-
-
-<!-- --------------------------------------------- SEARCH FROM THE HOME PAGE JS SCRIPT------------------------->
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('searchInput');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const sortFilter = document.getElementById('sortFilter');
-    const toolsGrid = document.getElementById('toolsGrid');
-    const noResultsMsg = document.getElementById('noResults');
-    const cards = Array.from(document.querySelectorAll('.tool-card-col'));
-
-    // --- NEW: CHECK URL FOR PARAMETERS ON LOAD ---
+    // Check URL parameters (if navigating from the Home page)
     const urlParams = new URLSearchParams(window.location.search);
-    const categoryParam = urlParams.get('category');
-    const searchParam = urlParams.get('search');
-
-    if (categoryParam) {
-      categoryFilter.value = categoryParam; // Set the dropdown to match the URL
-    }
-    if (searchParam) {
-      searchInput.value = searchParam; // Fill the search box with the URL query
-    }
-    // ---------------------------------------------
+    if (urlParams.get('category')) categoryFilter.value = urlParams.get('category');
+    if (urlParams.get('search')) searchInput.value = urlParams.get('search');
 
     function filterAndSortTools() {
       const searchTerm = searchInput.value.toLowerCase();
@@ -429,8 +392,8 @@
       let visibleCount = 0;
       let visibleCards = [];
 
-      // 1. Filtering
-      cards.forEach(card => {
+      // Phase 1: Filter
+      toolCards.forEach(card => {
         const name = card.getAttribute('data-name');
         const desc = card.getAttribute('data-desc');
         const category = card.getAttribute('data-category');
@@ -447,37 +410,115 @@
         }
       });
 
-      // 2. Sorting (re-appending children in order)
+      // Phase 2: Sort
       visibleCards.sort((a, b) => {
         const nameA = a.getAttribute('data-name');
         const nameB = b.getAttribute('data-name');
         const dateA = parseInt(a.getAttribute('data-date'));
         const dateB = parseInt(b.getAttribute('data-date'));
+        const ratingA = parseFloat(a.getAttribute('data-rating')) || 0;
+        const ratingB = parseFloat(b.getAttribute('data-rating')) || 0;
 
+        if (sortBy === 'highest-rated') return ratingB - ratingA; // 5.0 to 0.0
         if (sortBy === 'a-z') return nameA.localeCompare(nameB);
         if (sortBy === 'z-a') return nameB.localeCompare(nameA);
         if (sortBy === 'newest') return dateB - dateA; 
         if (sortBy === 'oldest') return dateA - dateB;
       });
 
-      // Append sorted elements back to the grid
+      // Phase 3: Re-append to DOM in sorted order
       visibleCards.forEach(card => toolsGrid.appendChild(card));
 
-      // 3. Show/Hide Empty State
-      if (visibleCount === 0) {
-        noResultsMsg.classList.remove('d-none');
-      } else {
-        noResultsMsg.classList.add('d-none');
-      }
+      // Phase 4: Toggle Empty State
+      noResultsMsg.classList.toggle('d-none', visibleCount > 0);
     }
 
-    // Attach Event Listeners
+    // Attach listeners
     searchInput.addEventListener('input', filterAndSortTools);
     categoryFilter.addEventListener('change', filterAndSortTools);
     sortFilter.addEventListener('change', filterAndSortTools);
 
-    // --- NEW: RUN FILTER IMMEDIATELY ON LOAD ---
-    // This ensures that if the user came from the Home page, the filter applies instantly
+    // Run once on load to apply any URL params
     filterAndSortTools();
+  });
+
+  // Helper for the empty state button
+  function resetFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('categoryFilter').value = 'all';
+    document.getElementById('sortFilter').value = 'highest-rated';
+    document.getElementById('searchInput').dispatchEvent(new Event('input'));
+  }
+
+
+
+
+  // --------------------------VOICE SEARCH BUTTON-----------------------------
+  document.addEventListener('DOMContentLoaded', () => {
+    const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const micIcon = voiceSearchBtn.querySelector('i');
+
+    // 1. Check if the browser supports the Web Speech API
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      // If the browser doesn't support it (like some older browsers), hide the button
+      voiceSearchBtn.style.display = 'none';
+      return;
+    }
+
+    // 2. Initialize the Voice Assistant
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false; // Stop listening after they stop talking
+    recognition.interimResults = false; // Only give us the final confirmed sentence
+    recognition.lang = 'en-US'; // Set language
+
+    // 3. Handle when the microphone starts listening
+    recognition.onstart = function() {
+      voiceSearchBtn.classList.add('listening');
+      searchInput.placeholder = "Listening... Speak now";
+      micIcon.classList.remove('fa-microphone');
+      micIcon.classList.add('fa-ear-listen');
+    };
+
+    // 4. Handle when the user finishes speaking and we get a result
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      
+      // Put the spoken words into the search bar
+      searchInput.value = transcript;
+      
+      // Trigger the search automatically!
+      // This forces the "input" event so your existing filter script knows to run
+      searchInput.dispatchEvent(new Event('input', { bubbles: true })); 
+    };
+
+    // 5. Handle cleanup when the microphone stops
+    recognition.onend = function() {
+      voiceSearchBtn.classList.remove('listening');
+      searchInput.placeholder = "Search prompts, tools, or descriptions...";
+      micIcon.classList.remove('fa-ear-listen');
+      micIcon.classList.add('fa-microphone');
+    };
+
+    // 6. Handle Errors (e.g., user denied microphone permission)
+    recognition.onerror = function(event) {
+      console.error("Voice search error:", event.error);
+      voiceSearchBtn.classList.remove('listening');
+      searchInput.placeholder = "Microphone error or denied.";
+      setTimeout(() => {
+        searchInput.placeholder = "Search prompts, tools, or descriptions...";
+      }, 3000);
+    };
+
+    // 7. Start listening when the button is clicked
+    voiceSearchBtn.addEventListener('click', () => {
+      if (voiceSearchBtn.classList.contains('listening')) {
+        recognition.stop(); // If already listening, stop it
+      } else {
+        recognition.start(); // Start listening
+      }
+    });
   });
 </script>

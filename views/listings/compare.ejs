@@ -1,0 +1,309 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<section class="compare-section">
+    <div class="ambient-glow-comp-1"></div>
+    <div class="ambient-glow-comp-2"></div>
+
+    <div class="container relative-z">
+        
+        <div class="text-center fade-in-up mb-5">
+            <div class="badge-subtle mb-3 mx-auto">Versus Engine</div>
+            <h1 class="gradient-title">Compare AI Tools</h1>
+            <p class="text-muted-custom">Select two platforms below to evaluate their features, pricing, and ratings side-by-side.</p>
+        </div>
+
+        <div class="comparison-selector-hub fade-in-up" style="animation-delay: 0.1s;">
+            <form action="/home/listings/compare" method="GET" class="w-100" id="compareForm">
+                <div class="row g-3 align-items-center justify-content-center">
+                    
+                    <div class="col-md-5">
+                        <div class="custom-select-wrapper w-100">
+                            <select name="tool1" class="compare-select" id="tool1" onchange="document.getElementById('compareForm').submit()">
+                                <option value="" disabled <%= !tool1 ? 'selected' : '' %>>Select First Tool...</option>
+                                <% for(let list of allListings) { %>
+                                    <option value="<%= list._id %>" <%= tool1 === list._id.toString() ? 'selected' : '' %>>
+                                        <%= list.name %>
+                                    </option>
+                                <% } %>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-auto text-center">
+                        <div class="vs-badge">VS</div>
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="custom-select-wrapper w-100">
+                            <select name="tool2" class="compare-select" id="tool2" onchange="document.getElementById('compareForm').submit()">
+                                <option value="" disabled <%= !tool2 ? 'selected' : '' %>>Select Second Tool...</option>
+                                <% for(let list of allListings) { %>
+                                    <option value="<%= list._id %>" <%= tool2 === list._id.toString() ? 'selected' : '' %>>
+                                        <%= list.name %>
+                                    </option>
+                                <% } %>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
+        <% if(item1 || item2) { %>
+            <div class="comparison-matrix fade-in-up" style="animation-delay: 0.2s;">
+                <div class="row g-0">
+                    
+                    <div class="col-md-6 tool-column border-right-subtle">
+                        <% if(item1) { %>
+                            
+                            <% 
+                                let avg1 = 0; let count1 = item1.reviews ? item1.reviews.length : 0;
+                                if(count1 > 0) {
+                                    let total = 0;
+                                    item1.reviews.forEach(r => { if(r && r.rating) total += r.rating; });
+                                    avg1 = (total / count1).toFixed(1);
+                                }
+                            %>
+
+                            <div class="compare-header">
+                                <img src="<%= item1.logo && item1.logo.url ? item1.logo.url : 'https://placehold.co/200x200/1e1b4b/a855f7?text=AI' %>" alt="<%= item1.name %>">
+                                <h3><%= item1.name %></h3>
+                                <span class="category-pill"><%= item1.category %></span>
+                            </div>
+
+                            <div class="compare-row">
+                                <span class="row-label">Pricing Model</span>
+                                <span class="pricing-pill <%= item1.pricingModel === 'Free' ? 'free-tier' : 'paid-tier' %>">
+                                    <%= item1.pricingModel %>
+                                </span>
+                            </div>
+
+                            <div class="compare-row">
+                                <span class="row-label">Community Rating</span>
+                                <div class="review-stars">
+                                    <% if(count1 > 0) { %>
+                                        <span class="star-rating"><i class="fa-solid fa-star"></i> <%= avg1 %></span>
+                                        <span class="review-count">(<%= count1 %>)</span>
+                                    <% } else { %>
+                                        <span class="text-muted-custom">No reviews</span>
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <div class="compare-row description-row">
+                                <span class="row-label">Overview</span>
+                                <p><%= item1.description %></p>
+                            </div>
+
+                            <div class="compare-row features-row">
+                                <span class="row-label">Key Features</span>
+                                <ul class="feature-list">
+                                    <% if(item1.features && item1.features.length > 0) { %>
+                                        <% item1.features.forEach(feature => { %>
+                                            <li><i class="fa-solid fa-check text-accent-cyan"></i> <%= feature %></li>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <li class="text-muted-custom">No features listed.</li>
+                                    <% } %>
+                                </ul>
+                            </div>
+
+                            <div class="compare-footer text-center">
+                                <a href="/home/listings/<%= item1._id %>" class="btn-glass-sm w-100 mb-2">Read Reviews</a>
+                                <a href="<%= item1.websiteUrl %>" target="_blank" class="btn-glow-sm w-100">Visit <%= item1.name %> <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></a>
+                            </div>
+
+                        <% } else { %>
+                            <div class="empty-column">
+                                <i class="fa-solid fa-cube empty-icon"></i>
+                                <p>Select a tool above to begin comparison.</p>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <div class="col-md-6 tool-column">
+                        <% if(item2) { %>
+                            
+                            <% 
+                                let avg2 = 0; let count2 = item2.reviews ? item2.reviews.length : 0;
+                                if(count2 > 0) {
+                                    let total = 0;
+                                    item2.reviews.forEach(r => { if(r && r.rating) total += r.rating; });
+                                    avg2 = (total / count2).toFixed(1);
+                                }
+                            %>
+
+                            <div class="compare-header">
+                                <img src="<%= item2.logo && item2.logo.url ? item2.logo.url : 'https://placehold.co/200x200/1e1b4b/a855f7?text=AI' %>" alt="<%= item2.name %>">
+                                <h3><%= item2.name %></h3>
+                                <span class="category-pill"><%= item2.category %></span>
+                            </div>
+
+                            <div class="compare-row">
+                                <span class="row-label">Pricing Model</span>
+                                <span class="pricing-pill <%= item2.pricingModel === 'Free' ? 'free-tier' : 'paid-tier' %>">
+                                    <%= item2.pricingModel %>
+                                </span>
+                            </div>
+
+                            <div class="compare-row">
+                                <span class="row-label">Community Rating</span>
+                                <div class="review-stars">
+                                    <% if(count2 > 0) { %>
+                                        <span class="star-rating"><i class="fa-solid fa-star"></i> <%= avg2 %></span>
+                                        <span class="review-count">(<%= count2 %>)</span>
+                                    <% } else { %>
+                                        <span class="text-muted-custom">No reviews</span>
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <div class="compare-row description-row">
+                                <span class="row-label">Overview</span>
+                                <p><%= item2.description %></p>
+                            </div>
+
+                            <div class="compare-row features-row">
+                                <span class="row-label">Key Features</span>
+                                <ul class="feature-list">
+                                    <% if(item2.features && item2.features.length > 0) { %>
+                                        <% item2.features.forEach(feature => { %>
+                                            <li><i class="fa-solid fa-check text-accent-cyan"></i> <%= feature %></li>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <li class="text-muted-custom">No features listed.</li>
+                                    <% } %>
+                                </ul>
+                            </div>
+
+                            <div class="compare-footer text-center">
+                                <a href="/home/listings/<%= item2._id %>" class="btn-glass-sm w-100 mb-2">Read Reviews</a>
+                                <a href="<%= item2.websiteUrl %>" target="_blank" class="btn-glow-sm w-100">Visit <%= item2.name %> <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></a>
+                            </div>
+
+                        <% } else { %>
+                            <div class="empty-column">
+                                <i class="fa-solid fa-cube empty-icon"></i>
+                                <p>Select a tool above to begin comparison.</p>
+                            </div>
+                        <% } %>
+                    </div>
+
+                </div>
+            </div>
+        <% } %>
+
+    </div>
+</section>
+
+<style>
+    /* Base Setup */
+    .compare-section {
+        position: relative; min-height: 100vh; background-color: #030305;
+        padding: 120px 0 80px; font-family: 'Plus Jakarta Sans', sans-serif; overflow: hidden;
+    }
+    .relative-z { position: relative; z-index: 2; }
+
+    /* Ambient Glow */
+    .ambient-glow-comp-1 { position: absolute; top: -10%; left: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%); filter: blur(60px); z-index: 0; pointer-events: none; }
+    .ambient-glow-comp-2 { position: absolute; bottom: -10%; right: -10%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%); filter: blur(60px); z-index: 0; pointer-events: none; }
+
+    /* Headers & Text */
+    .badge-subtle { display: inline-block; padding: 6px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 50px; font-size: 0.8rem; color: #a1a1aa; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+    .gradient-title { font-size: 3.5rem; font-weight: 800; letter-spacing: -1px; background: linear-gradient(135deg, #ffffff, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .text-muted-custom { color: #94a3b8; font-size: 1.15rem; max-width: 600px; margin: 0 auto; }
+    .text-accent-cyan { color: #06b6d4; }
+
+    /* Selector Hub */
+    /* Selector Hub */
+    .comparison-selector-hub {
+        background: rgba(15, 15, 20, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px;
+        padding: 20px; margin-bottom: 40px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+    .custom-select-wrapper select {
+        width: 100%; appearance: none; cursor: pointer; background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: #fff;
+        padding: 16px 20px; font-size: 1rem; font-weight: 600; transition: all 0.3s;
+    }
+    .custom-select-wrapper select:focus { 
+        outline: none; border-color: #8b5cf6; background: rgba(255, 255, 255, 0.08); 
+    }
+    
+    /* --- ADD THIS NEW BLOCK TO FIX THE WHITE BACKGROUND ISSUE --- */
+    .custom-select-wrapper select option {
+        background-color: #12121a; /* Solid dark background */
+        color: #ffffff; /* Force text to be white */
+        font-weight: 500;
+    }
+    /* ------------------------------------------------------------ */
+
+    .vs-badge { background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); margin: 0 auto;}
+    .comparison-selector-hub {
+        background: rgba(15, 15, 20, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px;
+        padding: 20px; margin-bottom: 40px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+    .custom-select-wrapper select {
+        width: 100%; appearance: none; cursor: pointer; background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: #fff;
+        padding: 16px 20px; font-size: 1rem; font-weight: 600; transition: all 0.3s;
+    }
+    .custom-select-wrapper select:focus { outline: none; border-color: #8b5cf6; background: rgba(255, 255, 255, 0.08); }
+    .vs-badge { background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); margin: 0 auto;}
+
+    /* Comparison Matrix */
+    .comparison-matrix {
+        background: #0a0a0a; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08);
+        overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .tool-column { padding: 40px; display: flex; flex-direction: column; }
+    .border-right-subtle { border-right: 1px solid rgba(255,255,255,0.08); }
+    
+    .compare-header { text-align: center; margin-bottom: 30px; }
+    .compare-header img { width: 80px; height: 80px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 16px; object-fit: cover; }
+    .compare-header h3 { color: #fff; font-weight: 700; font-size: 1.8rem; margin-bottom: 8px; }
+
+    .compare-row { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 20px 0; }
+    .row-label { display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #71717a; font-weight: 700; margin-bottom: 12px; }
+    
+    .description-row p { color: #d4d4d8; line-height: 1.6; font-size: 0.95rem; margin: 0; }
+    
+    .feature-list { list-style: none; padding: 0; margin: 0; }
+    .feature-list li { color: #e4e4e7; margin-bottom: 10px; font-size: 0.95rem; display: flex; align-items: flex-start; gap: 10px; }
+
+    .compare-footer { padding-top: 30px; margin-top: auto; }
+
+    /* Badges & Shared CSS */
+    .category-pill { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); padding: 4px 12px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; display: inline-block;}
+    .pricing-pill { padding: 6px 14px; border-radius: 50px; font-size: 0.9rem; font-weight: 600; border: 1px solid; display: inline-block; }
+    .free-tier { background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2); }
+    .paid-tier { background: rgba(139, 92, 246, 0.1); color: #c084fc; border-color: rgba(139, 92, 246, 0.2); }
+    
+    .review-stars { display: flex; align-items: center; gap: 8px; }
+    .star-rating { color: #fbbf24; font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .review-count { color: #71717a; font-size: 0.9rem; }
+
+    /* Empty State */
+    .empty-column { height: 100%; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0.5; }
+    .empty-icon { font-size: 4rem; color: #3f3f46; margin-bottom: 20px; }
+    .empty-column p { color: #a1a1aa; font-size: 1.1rem; }
+
+    /* Buttons */
+    .btn-glass-sm { display: inline-block; background: transparent; color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.15); padding: 12px 20px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; text-decoration: none; transition: all 0.3s ease; }
+    .btn-glass-sm:hover { background: rgba(255, 255, 255, 0.05); color: #ffffff; }
+    .btn-glow-sm { display: inline-block; background: #fff; color: #000; border: none; padding: 12px 20px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; text-decoration: none; transition: all 0.3s ease; }
+    .btn-glow-sm:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(255,255,255,0.3); color: #000; }
+
+    /* Animations */
+    .fade-in-up { opacity: 0; animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        .border-right-subtle { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .vs-badge { margin: 15px auto; }
+        .gradient-title { font-size: 2.5rem; }
+    }
+</style>

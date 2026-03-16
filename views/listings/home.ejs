@@ -9,454 +9,319 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
-
     <style>
+        /* --- 1. CORE VARIABLES & SETUP --- */
         :root {
-            --surface: rgba(18, 18, 18, 0.7);
-            --surface-border: rgba(255, 255, 255, 0.08);
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --accent-primary: #6366f1; /* Indigo */
-            --accent-secondary: #a855f7; /* Purple */
-            --accent-glow: rgba(99, 102, 241, 0.15);
+            --bg-dark: #050507;
+            --surface: rgba(20, 20, 25, 0.6);
+            --surface-hover: rgba(30, 30, 35, 0.8);
+            --border-light: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --accent-primary: #6366f1;
+            --accent-secondary: #a855f7;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        /* 3D Canvas Background */
-        #bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -10;
-            pointer-events: none; /* Lets clicks pass through to the UI */
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
 
         body {
-            /* Background is handled by Three.js now */
-            background-color: transparent !important; 
-            color: var(--text-primary);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             overflow-x: hidden;
             line-height: 1.6;
-            margin: 0;
-            padding-top: 10px;
         }
 
-        /* Ambient Background Glow */
-        .ambient-glow {
-            position: fixed;
-            top: -20%;
-            left: -10%;
-            width: 50vw;
-            height: 50vw;
-            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-            border-radius: 50%;
-            z-index: -1;
-            animation: pulseGlow 10s infinite alternate;
-            pointer-events: none;
+        /* --- 2. LIGHTWEIGHT PURE CSS BACKGROUND --- */
+        /* This replaces Three.js. It uses radial gradients that the browser's GPU renders instantly. */
+        .bg-glow-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; overflow: hidden; pointer-events: none;
         }
-        
-        .ambient-glow.right {
-            top: 40%;
-            left: 60%;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+        .glow-orb {
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.15;
+            animation: slowDrift 15s infinite alternate ease-in-out;
+        }
+        .glow-orb.orb-1 {
+            top: -10%; left: -10%; width: 50vw; height: 50vw;
+            background: radial-gradient(circle, var(--accent-primary), transparent 70%);
+        }
+        .glow-orb.orb-2 {
+            bottom: -10%; right: -10%; width: 60vw; height: 60vw;
+            background: radial-gradient(circle, var(--accent-secondary), transparent 70%);
             animation-delay: -5s;
         }
 
-        @keyframes pulseGlow {
-            0% { transform: scale(1); opacity: 0.3; }
-            100% { transform: scale(1.2); opacity: 0.6; }
+        @keyframes slowDrift {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(5%, 5%) scale(1.1); }
         }
 
-        /* Content Wrapper to ensure z-index layering */
-        .main-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Navbar */
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 5%;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        /* The Floating Pill Base */
-        .floating-pill-nav {
-            position: fixed;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 92%;
-            max-width: 1200px;
-            background: rgba(15, 15, 15, 0.65);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 100px;
-            padding: 8px 12px;
-            z-index: 1050;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .floating-pill-nav.scrolled {
-            width: 85%;
-            top: 15px;
-            background: rgba(5, 5, 5, 0.85);
-            border-color: rgba(99, 102, 241, 0.3);
-            box-shadow: 0 15px 35px -5px rgba(99, 102, 241, 0.15);
-        }
-
-        .logo-icon-wrapper {
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
-        }
-
-        .accent-icon { color: #ffffff; font-size: 1rem; }
-        .brand-text { font-weight: 700; font-size: 1.25rem; color: #ffffff; letter-spacing: -0.5px; }
-
-        .floating-pill-nav .nav-link {
-            color: #a1a1aa !important;
-            font-weight: 500;
-            font-size: 0.95rem;
-            padding: 10px 20px !important;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .floating-pill-nav .nav-link:hover,
-        .floating-pill-nav .nav-link.active {
-            color: #ffffff !important;
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        /* Hero Section */
+        /* --- 3. HERO SECTION --- */
         .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 0 20px;
-            position: relative;
-            transform-style: preserve-3d;
-            perspective: 1000px;
+            min-height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            padding: 100px 20px 40px; position: relative;
         }
 
         .hero-badge {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--surface-border);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-            animation: fadeInUp 0.8s ease backwards;
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-light);
+            padding: 8px 16px; border-radius: 50px; font-size: 0.85rem; color: var(--text-muted);
+            margin-bottom: 24px; animation: fadeUp 0.8s ease backwards;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
 
         .hero h1 {
-            font-size: 4.5rem;
-            font-weight: 700;
-            line-height: 1.1;
-            letter-spacing: -2px;
-            margin-bottom: 20px;
-            max-width: 800px;
-            animation: fadeInUp 0.8s ease 0.1s backwards;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            font-size: clamp(2.5rem, 6vw, 4.5rem); /* Auto-scales on mobile */
+            font-weight: 700; line-height: 1.1; letter-spacing: -1px;
+            margin-bottom: 20px; max-width: 800px;
+            animation: fadeUp 0.8s ease 0.1s backwards;
         }
 
-        .text-gradient {
-            background: linear-gradient(to right, #ffffff, var(--text-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
         .text-accent {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background: linear-gradient(135deg, #a855f7, #06b6d4);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
         .hero p {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            max-width: 600px;
-            margin-bottom: 40px;
-            animation: fadeInUp 0.8s ease 0.2s backwards;
+            font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text-muted);
+            max-width: 600px; margin-bottom: 40px;
+            animation: fadeUp 0.8s ease 0.2s backwards;
         }
 
         /* Search Box */
-        .search-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            animation: fadeInUp 0.8s ease 0.3s backwards;
-            transform: translateZ(30px); /* 3D pop effect */
-        }
-
-        .search-container input {
-            width: 100%;
-            padding: 20px 24px 20px 50px;
-            background: rgba(15, 15, 15, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            color: white;
-            font-size: 1.1rem;
-            backdrop-filter: blur(20px);
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .search-container input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), 0 20px 50px rgba(0,0,0,0.5);
-            transform: scale(1.02);
-        }
-
-        .search-container i {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            z-index: 2;
-        }
+        
 
         /* Categories */
         .categories {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 40px;
-            animation: fadeInUp 0.8s ease 0.4s backwards;
+            display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+            margin-top: 30px; animation: fadeUp 0.8s ease 0.4s backwards;
         }
-
         .category-pill {
-            padding: 8px 20px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--surface-border);
-            border-radius: 50px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            cursor: pointer;
+            padding: 8px 18px; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-light); border-radius: 50px;
+            color: var(--text-muted); font-size: 0.9rem; cursor: pointer;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
         }
-
         .category-pill:hover, .category-pill.active {
-            background: var(--text-primary);
-            color: #000;
-            border-color: var(--text-primary);
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 10px 20px rgba(255,255,255,0.1);
+            background: var(--text-main); color: #000; border-color: var(--text-main);
+            transform: translateY(-2px);
         }
 
-        /* Floating Icons Animation */
+        /* --- 4. CSS FLOATING ICONS (No JS Required) --- */
         .floating-icon {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--surface-border);
-            padding: 15px;
-            border-radius: 16px;
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            animation: float 6s ease-in-out infinite;
-            z-index: -1;
-            backdrop-filter: blur(5px);
+            position: absolute; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-light); padding: 16px; border-radius: 16px;
+            font-size: 1.5rem; color: var(--text-muted); z-index: -1;
+            backdrop-filter: blur(5px); animation: floatUpAndDown 6s ease-in-out infinite;
+            display: none; /* Hidden on mobile by default */
+        }
+        @media (min-width: 992px) {
+            .floating-icon { display: block; }
+            .icon-1 { top: 25%; left: 15%; animation-delay: 0s; }
+            .icon-2 { top: 65%; left: 10%; animation-delay: -2s; }
+            .icon-3 { top: 30%; right: 15%; animation-delay: -4s; }
+            .icon-4 { top: 60%; right: 10%; animation-delay: -1s; }
         }
 
-        .icon-1 { top: 20%; left: 15%; animation-delay: 0s; }
-        .icon-2 { top: 60%; left: 10%; animation-delay: -2s; }
-        .icon-3 { top: 30%; right: 15%; animation-delay: -4s; }
-        .icon-4 { top: 70%; right: 10%; animation-delay: -1s; }
-
-        /* Tools Grid Section */
-        .tools-section {
-            padding: 100px 5%;
-            max-width: 1400px;
-            margin: 0 auto;
-            position: relative;
+        @keyframes floatUpAndDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
         }
 
+        /* --- 5. TRENDING SECTION & CARDS --- */
+        .tools-section { padding: 80px; max-width: 1300px; margin: 0 auto; position: relative; }
         .section-header {
-            margin-bottom: 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease;
+            margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end;
+            animation: fadeUp 0.8s ease forwards;
         }
-
-        .section-header.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .section-header h2 {
-            font-size: 2.5rem;
-            letter-spacing: -1px;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
+        .section-header h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 700; letter-spacing: -1px; }
+        .view-all-link { color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
+        .view-all-link:hover { color: var(--text-main); }
 
         .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 24px;
-            perspective: 1000px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;
         }
 
-        /* 3D Tool Cards */
+        /* Fast, Beautiful CSS-Only Hover Cards */
         .tool-card {
-            background: rgba(15, 15, 15, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 24px;
-            opacity: 0;
-            transform: translateY(30px);
-            backdrop-filter: blur(15px);
-            transform-style: preserve-3d; /* Allows inner elements to pop out */
+            background: var(--surface); border: 1px solid var(--border-light);
+            border-radius: 20px; padding: 24px; display: flex; flex-direction: column;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            animation: fadeUp 0.8s ease backwards;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-5px);
+            background: var(--surface-hover);
+            border-color: rgba(168, 85, 247, 0.3);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3), 0 0 20px rgba(168, 85, 247, 0.1);
         }
 
-        .tool-card.visible {
-            opacity: 1;
-            transform: translateY(0);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-
-        /* 3D Pop elements inside card */
-        .card-header, .card-desc, .card-footer {
-            transform: translateZ(30px); /* Pops content out during hover */
-            transition: transform 0.3s ease;
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
+        .card-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
         .card-icon {
-            width: 54px;
-            height: 54px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: white;
-            background: linear-gradient(135deg, #333, #111);
-            border: 1px solid var(--surface-border);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: white; background: #111; border: 1px solid var(--border-light);
         }
 
-        .card-title h3 { font-size: 1.25rem; font-weight: 600; }
+        .card-title h3 { font-size: 1.2rem; font-weight: 600; margin-bottom: 4px; }
         .card-title span {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            background: rgba(255,255,255,0.05);
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-top: 4px;
-            display: inline-block;
+            font-size: 0.75rem; color: var(--accent-primary); background: rgba(99, 102, 241, 0.1);
+            padding: 3px 8px; border-radius: 6px; font-weight: 600;
         }
 
-        .card-desc {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            margin-bottom: 24px;
-            line-height: 1.5;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
+        .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 24px; flex-grow: 1; }
 
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid var(--surface-border);
-            padding-top: 16px;
-        }
-
-        .pricing { font-size: 0.85rem; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-light); padding-top: 16px; }
+        .pricing { font-size: 0.85rem; color: var(--text-main); font-weight: 500; display: flex; align-items: center; gap: 6px; }
         .pricing i { color: #10b981; }
 
         .visit-link {
-            color: var(--accent-primary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: gap 0.3s ease;
+            color: var(--text-main); text-decoration: none; font-size: 0.9rem; font-weight: 600;
+            display: flex; align-items: center; gap: 6px; transition: color 0.3s ease;
         }
-        .visit-link:hover { gap: 10px; }
+        .tool-card:hover .visit-link { color: var(--accent-primary); }
 
         /* Animations */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes float {
-            0% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-            100% { transform: translateY(0px) rotate(0deg); }
+        /* --- 6. MOBILE FIXES --- */
+        @media (max-width: 768px) {
+            .section-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .tools-section { padding: 60px 20px; }
         }
 
-        @media (max-width: 768px) {
-            body { margin-top: 1.5rem; }
-            .hero h1 { font-size: 3rem; }
-            .nav-links { display: none; }
-            .floating-icon { display: none; }
-        }
+        /* ==========================================================================
+   PREMIUM SEARCH BAR & VOICE ASSISTANT UI
+   ========================================================================== */
+
+/* 1. The Container */
+.search-container {
+    position: relative; 
+    width: 100%; 
+    max-width: 650px; 
+    margin: 0 auto;
+    animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s backwards;
+}
+
+/* 2. The Input Field */
+.search-container input {
+    width: 100%; 
+    /* 56px left padding for the mag-glass, 75px right padding so text doesn't hit the mic button! */
+    padding: 22px 75px 22px 56px; 
+    background: rgba(15, 15, 20, 0.5); 
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px; 
+    color: #ffffff; 
+    font-size: 1.1rem;
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(24px); 
+    -webkit-backdrop-filter: blur(24px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.search-container input::placeholder {
+    color: #71717a;
+    font-weight: 400;
+    transition: opacity 0.3s ease;
+}
+
+/* 3. Input Focus & Hover States */
+.search-container input:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.search-container input:focus {
+    outline: none; 
+    background: rgba(10, 10, 15, 0.8);
+    border-color: var(--accent-secondary); 
+    box-shadow: 
+        0 0 0 1px var(--accent-secondary), 
+        0 20px 50px rgba(0, 0, 0, 0.6), 
+        0 0 40px rgba(168, 85, 247, 0.15); 
+    transform: translateY(-2px);
+}
+
+.search-container input:focus::placeholder {
+    opacity: 0.5;
+}
+
+/* 4. The Left Magnifying Glass Icon */
+.search-container > i.fa-magnifying-glass {
+    position: absolute; 
+    left: 24px; 
+    top: 50%; 
+    transform: translateY(-50%);
+    color: #71717a; 
+    font-size: 1.2rem;
+    transition: color 0.4s ease, transform 0.4s ease;
+    pointer-events: none; 
+    z-index: 2;
+}
+
+/* Animate the mag-glass when the user clicks the input */
+.search-container:focus-within > i.fa-magnifying-glass {
+    color: var(--accent-secondary);
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* 5. The Right Voice Search Button */
+.voice-search-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #a1a1aa;
+    width: 44px; /* Perfectly sized for touch/clicking */
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 10;
+}
+
+.voice-search-btn:hover {
+    background: rgba(168, 85, 247, 0.15);
+    color: #d8b4fe; /* Bright purple text */
+    border-color: rgba(168, 85, 247, 0.4);
+    transform: translateY(-50%) scale(1.08); /* Pops slightly on hover */
+}
+
+/* 6. The "Actively Listening" State */
+.voice-search-btn.listening {
+    background: rgba(239, 68, 68, 0.2); /* Red tint */
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.5);
+    animation: pulseMic 1.5s infinite;
+}
+
+@keyframes pulseMic {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
     </style>
 </head>
 <body>
 
-    <canvas id="bg-canvas"></canvas>
+    <div class="bg-glow-container">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
 
     <main class="main-content">
-        <div class="ambient-glow"></div>
-        <div class="ambient-glow right"></div>
-
-        <header class="hero" data-tilt data-tilt-max="2" data-tilt-speed="400" data-tilt-perspective="1000">
+        <header class="hero">
             <div class="floating-icon icon-1"><i class="fa-solid fa-robot"></i></div>
             <div class="floating-icon icon-2"><i class="fa-solid fa-pen-nib"></i></div>
             <div class="floating-icon icon-3"><i class="fa-solid fa-code"></i></div>
@@ -468,7 +333,11 @@
             
             <div class="search-container">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="homeSearchInput" placeholder="Search for writing, coding, or image tools...">
+                <input type="text" id="homeSearchInput" placeholder="Search prompts, tools, or categories...">
+                
+                <button type="button" id="homeVoiceSearchBtn" class="voice-search-btn" title="Search by Voice">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
             </div>
 
             <div class="categories">
@@ -476,18 +345,17 @@
                 <div class="category-pill" data-category="Text Generation">Text & Writing</div>
                 <div class="category-pill" data-category="Image Generation">Image Generation</div>
                 <div class="category-pill" data-category="Code Assistant">Code Assistants</div>
-                <div class="category-pill" data-category="Video Editing">Audio & Video</div>
             </div>
         </header>
 
         <section class="tools-section">
-            <div class="section-header scroll-animate">
-                <h2>Trending <span class="text-gradient">this week</span></h2>
-                <a href="/home/listings" style="color: var(--text-secondary); text-decoration: none;">View all <i class="fa-solid fa-arrow-right"></i></a>
+            <div class="section-header">
+                <h2>Trending this week</h2>
+                <a href="/home/listings" class="view-all-link">View all <i class="fa-solid fa-arrow-right ms-1"></i></a>
             </div>
 
             <div class="tools-grid">
-                <div class="tool-card scroll-animate" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2">
+                <div class="tool-card" style="animation-delay: 0.1s;">
                     <div class="card-header">
                         <div class="card-icon" style="background: linear-gradient(135deg, #10a37f, #0d8a6b);"><i class="fa-solid fa-bolt"></i></div>
                         <div class="card-title">
@@ -498,11 +366,11 @@
                     <p class="card-desc">Advanced language model by OpenAI capable of coding, writing, and complex problem solving.</p>
                     <div class="card-footer">
                         <div class="pricing"><i class="fa-solid fa-circle-check"></i> Freemium</div>
-                        <a href="https://chat.openai.com" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="/home/listings" class="visit-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
 
-                <div class="tool-card scroll-animate" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" style="transition-delay: 0.1s;">
+                <div class="tool-card" style="animation-delay: 0.2s;">
                     <div class="card-header">
                         <div class="card-icon" style="background: linear-gradient(135deg, #d946ef, #a855f7);"><i class="fa-solid fa-palette"></i></div>
                         <div class="card-title">
@@ -512,27 +380,12 @@
                     </div>
                     <p class="card-desc">Create highly detailed and artistic images from text prompts using Discord.</p>
                     <div class="card-footer">
-                        <div class="pricing"><i class="fa-solid fa-circle-check" style="color:#6366f1"></i> Paid</div>
-                        <a href="https://midjourney.com" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
+                        <div class="pricing"><i class="fa-solid fa-circle-check" style="color:#a855f7"></i> Paid</div>
+                        <a href="/home/listings" class="visit-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
 
-                <div class="tool-card scroll-animate" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" style="transition-delay: 0.2s;">
-                    <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #ea580c);"><i class="fa-solid fa-terminal"></i></div>
-                        <div class="card-title">
-                            <h3>GitHub Copilot</h3>
-                            <span>Code Assistant</span>
-                        </div>
-                    </div>
-                    <p class="card-desc">Your AI pair programmer that suggests code and entire functions in real-time.</p>
-                    <div class="card-footer">
-                        <div class="pricing"><i class="fa-solid fa-circle-check" style="color:#6366f1"></i> Paid</div>
-                        <a href="https://github.com/features/copilot" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                </div>
-                
-                <div class="tool-card scroll-animate" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2" style="transition-delay: 0.3s;">
+                <div class="tool-card" style="animation-delay: 0.3s;">
                     <div class="card-header">
                         <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"><i class="fa-solid fa-brain"></i></div>
                         <div class="card-title">
@@ -543,7 +396,7 @@
                     <p class="card-desc">Anthropic's latest AI model with massive context windows and exceptional reasoning.</p>
                     <div class="card-footer">
                         <div class="pricing"><i class="fa-solid fa-circle-check"></i> Freemium</div>
-                        <a href="https://claude.ai" class="visit-link">Try it <i class="fa-solid fa-arrow-right"></i></a>
+                        <a href="/home/listings" class="visit-link">Explore <i class="fa-solid fa-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
@@ -551,146 +404,82 @@
     </main>
 
     <script>
-        // --- 1. THREE.JS BACKGROUND SCENE ---
-        const canvas = document.querySelector('#bg-canvas');
-        const scene = new THREE.Scene();
-        
-        // Deep dark background
-        scene.background = new THREE.Color('#050505'); 
-        // Add subtle fog to fade out distant particles
-        scene.fog = new THREE.FogExp2('#050505', 0.0015);
+        document.addEventListener('DOMContentLoaded', () => {
+            // Category Redirection
+            document.querySelectorAll('.category-pill').forEach(pill => {
+                pill.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    window.location.href = `/home/listings?category=${encodeURIComponent(category)}`;
+                });
+            });
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-        
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        camera.position.z = 50;
-
-        // Create abstract "Neural Network" geometry
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 1500;
-        const posArray = new Float32Array(particlesCount * 3);
-
-        for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 200; // Spread particles across screen
-        }
-
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-        // Create material with your accent colors
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.3,
-            color: '#6366f1',
-            transparent: true,
-            opacity: 0.8,
-            blending: THREE.AdditiveBlending
-        });
-
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
-
-        // Add an abstract glowing wireframe core
-        const coreGeometry = new THREE.IcosahedronGeometry(15, 1);
-        const coreMaterial = new THREE.MeshBasicMaterial({ 
-            color: '#a855f7', 
-            wireframe: true,
-            transparent: true,
-            opacity: 0.15
-        });
-        const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
-        scene.add(coreMesh);
-
-        // Mouse & Scroll Parallax Variables
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
-        const windowHalfX = window.innerWidth / 2;
-        const windowHalfY = window.innerHeight / 2;
-
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX - windowHalfX);
-            mouseY = (event.clientY - windowHalfY);
-        });
-
-        // Animation Loop
-        const clock = new THREE.Clock();
-
-        function animate() {
-            requestAnimationFrame(animate);
-            const elapsedTime = clock.getElapsedTime();
-
-            // Auto-rotation
-            particlesMesh.rotation.y = elapsedTime * 0.05;
-            coreMesh.rotation.x = elapsedTime * 0.1;
-            coreMesh.rotation.y = elapsedTime * 0.15;
-
-            // Smooth Mouse Parallax Effect
-            targetX = mouseX * 0.001;
-            targetY = mouseY * 0.001;
-            
-            particlesMesh.rotation.y += 0.05 * (targetX - particlesMesh.rotation.y);
-            particlesMesh.rotation.x += 0.05 * (targetY - particlesMesh.rotation.x);
-            
-            // Camera Scroll Effect
-            camera.position.y = -window.scrollY * 0.05;
-
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        // Handle Window Resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // --- 2. UI INTERACTION LOGIC ---
-
-        // Navbar scroll effect
-        window.addEventListener('scroll', () => {
-            const nav = document.getElementById('ainexusNav');
-            if (nav) {
-                if (window.scrollY > 50) {
-                    nav.classList.add('scrolled');
-                } else {
-                    nav.classList.remove('scrolled');
-                }
+            // Search Redirection
+            const homeSearchInput = document.getElementById('homeSearchInput');
+            if(homeSearchInput) {
+                homeSearchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && this.value.trim() !== '') {
+                        window.location.href = `/home/listings?search=${encodeURIComponent(this.value)}`;
+                    }
+                });
             }
         });
 
-        // Intersection Observer for CSS Scroll Animations
-        const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
 
-        document.querySelectorAll('.scroll-animate').forEach((el) => {
-            observer.observe(el);
-        });
+
+// --- VOICE SEARCH LOGIC (Home Page) ---
+const homeVoiceBtn = document.getElementById('homeVoiceSearchBtn');
+            const micIcon = homeVoiceBtn ? homeVoiceBtn.querySelector('i') : null;
+
+            if (homeVoiceBtn && homeSearchInput) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                
+                if (!SpeechRecognition) {
+                    homeVoiceBtn.style.display = 'none'; // Hide if browser doesn't support it
+                } else {
+                    const recognition = new SpeechRecognition();
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    recognition.lang = 'en-US';
+
+                    recognition.onstart = function() {
+                        homeVoiceBtn.classList.add('listening');
+                        homeSearchInput.placeholder = "Listening... Speak now";
+                        micIcon.classList.replace('fa-microphone', 'fa-ear-listen');
+                    };
+
+                    recognition.onresult = function(event) {
+                        const transcript = event.results[0][0].transcript;
+                        homeSearchInput.value = transcript;
+                        
+                        // INSTEAD of filtering, we immediately redirect to the Explore page!
+                        window.location.href = `/home/listings?search=${encodeURIComponent(transcript)}`;
+                    };
+
+                    recognition.onend = function() {
+                        homeVoiceBtn.classList.remove('listening');
+                        homeSearchInput.placeholder = "Search prompts, tools, or categories...";
+                        micIcon.classList.replace('fa-ear-listen', 'fa-microphone');
+                    };
+
+                    recognition.onerror = function(event) {
+                        console.error("Voice search error:", event.error);
+                        homeVoiceBtn.classList.remove('listening');
+                        homeSearchInput.placeholder = "Microphone error or denied.";
+                        setTimeout(() => {
+                            homeSearchInput.placeholder = "Search prompts, tools, or categories...";
+                        }, 3000);
+                    };
+
+                    homeVoiceBtn.addEventListener('click', () => {
+                        if (homeVoiceBtn.classList.contains('listening')) {
+                            recognition.stop();
+                        } else {
+                            recognition.start();
+                        }
+                    });
+                }
+            }
         
-        // Redirect Logic
-        document.querySelectorAll('.category-pill').forEach(pill => {
-            pill.addEventListener('click', function() {
-                const category = this.getAttribute('data-category');
-                window.location.href = `/home/listings?category=${encodeURIComponent(category)}`;
-            });
-        });
-
-        const homeSearchInput = document.getElementById('homeSearchInput');
-        if(homeSearchInput) {
-            homeSearchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    window.location.href = `/home/listings?search=${encodeURIComponent(this.value)}`;
-                }
-            });
-        }
     </script>
 </body>
 </html>

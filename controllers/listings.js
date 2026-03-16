@@ -1,6 +1,9 @@
 const Listing = require("../models/listing.js")
 const {listingSchema} = require("../schema.js");
 
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+// Initialize Gemini with your API key
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 
 
@@ -10,7 +13,8 @@ module.exports.home = async(req,res)=>{
 }
 
 module.exports.index = async(req,res)=>{
-    const allListings = await Listing.find({});
+    // Add .populate("reviews") right here! 👇
+    const allListings = await Listing.find({}).populate("reviews");
     res.render("listings/index.ejs", {allListings})
 };
 
@@ -127,4 +131,60 @@ module.exports.delete = async(req,res)=>{
 
 module.exports.chatbot = (req,res)=>{
     res.render("listings/chatbot.ejs")
+};
+
+
+//--------------------------------------------- Add this to controllers/listings.js -----------------------------------------
+module.exports.compare = async (req, res) => {
+    // Get the tool IDs from the URL (e.g., /compare?tool1=123&tool2=456)
+    const { tool1, tool2 } = req.query;
+    
+    // Fetch all listings to populate the dropdown menus (alphabetical order)
+    const allListings = await Listing.find({}).sort({ name: 1 });
+    
+    let item1 = null;
+    let item2 = null;
+
+    // If IDs are provided in the URL, fetch their full data + reviews
+    if (tool1) {
+        item1 = await Listing.findById(tool1).populate('reviews');
+    }
+    if (tool2) {
+        item2 = await Listing.findById(tool2).populate('reviews');
+    }
+
+    // Send everything to the new EJS page
+    res.render("listings/compare.ejs", { allListings, item1, item2, tool1, tool2 });
+};
+
+
+
+// Handles the API request from the chatbot UI
+module.exports.generateChatResponse = async (req, res) => {
+    try {
+        const userMessage = req.body.message;
+        
+        // Use the fast, free Flash model
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+        // This "Prompt Engineering" forces the AI to act like your specific app's assistant
+        const systemPrompt = `
+        You are the "AiNexus Matchmaker", the official AI assistant for the AiNexus Tool Directory. 
+        Your job is to recommend AI tools based on the user's request.
+        Keep your responses friendly, concise, and beautifully formatted with bullet points.
+        Do not output giant walls of text. Provide 2-3 highly relevant AI tool recommendations.
+        
+        User Request: ${userMessage}
+        `;
+
+        const result = await model.generateContent(systemPrompt);
+        const responseText = result.response.text();
+
+        // Send the AI's text back to the frontend
+        res.json({ reply: responseText });
+
+    } catch (error) {
+        console.error("Gemini API Error:", error);
+        res.status(500).json({ error: "Sorry, my neural network is currently resting. Please try again later!" });
+    }
 };
