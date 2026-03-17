@@ -134,10 +134,18 @@
     overflow: hidden;
   }
 
-  .floating-pill-nav .nav-link:hover,
+/* Hover State */
+.floating-pill-nav .nav-link:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* --- NEW Premium Active State --- */
   .floating-pill-nav .nav-link.active {
     color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(99, 102, 241, 0.15); /* Soft indigo glow */
+    box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.4); /* Crisp inner border */
+    font-weight: 600; /* Makes the text slightly bolder */
   }
 
   /* Login Text Link */
@@ -252,10 +260,15 @@
   }
 </style>
 
+
+
+
+
+
 <script>
   document.addEventListener("DOMContentLoaded", function() {
+    // 1. Handle Navbar Scroll Effect
     const navbar = document.getElementById("ainexusNav");
-    
     window.addEventListener("scroll", function() {
       if (window.scrollY > 50) {
         navbar.classList.add("scrolled");
@@ -263,5 +276,43 @@
         navbar.classList.remove("scrolled");
       }
     });
+
+    // 2. Handle Dynamic "Active" State Highlighting (Fixed for nested routes)
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+
+    // First, remove the active class from all links
+    navLinks.forEach(link => link.classList.remove('active'));
+
+    let bestMatch = null;
+    let longestMatchLength = 0;
+
+    // Loop through all links to find the MOST SPECIFIC match
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('href');
+        
+        // Exact match rule for Home (so it doesn't light up on every single page)
+        if (linkPath === '/home') {
+            if (currentPath === '/home' || currentPath === '/home/') {
+                // If we are exactly on home, set it and give it a high priority
+                bestMatch = link;
+                longestMatchLength = 999; 
+            }
+        } 
+        // For all other links, find which one matches the current URL the best
+        else if (currentPath.startsWith(linkPath)) {
+            // The longer the matching path, the more specific it is!
+            // Example: '/home/listings/compare' beats '/home/listings'
+            if (linkPath.length > longestMatchLength) {
+                longestMatchLength = linkPath.length;
+                bestMatch = link;
+            }
+        }
+    });
+
+    // If we found a winner, light it up!
+    if (bestMatch) {
+        bestMatch.classList.add('active');
+    }
   });
 </script>

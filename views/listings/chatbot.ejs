@@ -7,7 +7,11 @@
     <div class="ambient-glow-chat-2"></div>
 
     <div class="container chat-container relative-z">
-        <div class="chat-header fade-in-up">
+        <div class="chat-header fade-in-up " style="margin-top: 1rem;">
+            <a href="javascript:history.back()" class="btn-back" title="Go Back">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+
             <div class="bot-avatar-wrapper">
                 <i class="fa-solid fa-brain"></i>
             </div>
@@ -177,19 +181,18 @@
     .fade-in-up { opacity: 0; animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
 
-    /* Strict Mobile Responsiveness */
    /* ==========================================================================
-       STRICT MOBILE RESPONSIVENESS (Optimized Spacing)
+       STRICT MOBILE RESPONSIVENESS (Clean SMS-Style Layout)
        ========================================================================== */
        @media (max-width: 768px) {
-        /* 1. Remove excess padding from the outer section */
+        /* 1. Set up the main section */
         .chat-section { 
-            padding: 90px 0 0; /* 0 padding on the sides */
+            padding: 90px 0 0; 
         }
         
-        /* 2. Override Bootstrap's default container padding to reclaim screen space */
+        /* 2. Add a "little" boundary so it doesn't hit the phone edges */
         .container.chat-container { 
-            padding: 0 8px; /* Just a tiny 8px gap on the edges */
+            padding: 0 12px; /* Creates a clean, small gap on the left and right */
             max-width: 100%;
         }
         
@@ -200,26 +203,61 @@
             text-align: left; 
             gap: 12px; 
             align-items: center; 
-            padding: 0 8px;
+            padding: 0 4px;
         }
-        .bot-avatar-wrapper { width: 40px; height: 40px; margin-bottom: 0; font-size: 1.1rem; }
-        .chat-header h2 { font-size: 1.3rem; margin-bottom: 0; }
-        .chat-header p { display: none; /* Hide subtitle to save vertical space */ }
+        .bot-avatar-wrapper { width: 36px; height: 36px; margin-bottom: 0; font-size: 1rem; }
+        .chat-header h2 { font-size: 1.25rem; margin-bottom: 0; }
+        .chat-header p { display: none; }
         
-        /* 4. Maximize the chat interface area */
+        /* 4. The Chat Box Frame */
         .chat-interface {
-            height: calc(100vh - 145px); /* Perfect height for mobile Safari/Chrome */
-            border-radius: 20px 20px 0 0; /* Flat on the bottom like a native app */
+            height: calc(100vh - 170px); 
+            border-radius: 20px 20px 0 0; 
+            border: 1px solid rgba(255, 255, 255, 0.08); /* Keeps the premium glass border */
             border-bottom: none;
         }
         
-        /* 5. Let messages stretch wider so text doesn't get cramped */
-        .chat-window { padding: 16px 12px; gap: 16px; }
-        .message { max-width: 92%; } /* Increased from 85% */
-        .message-bubble { padding: 12px 14px; font-size: 0.95rem; }
+        /* 5. Inner Chat Window Padding */
+        .chat-window { 
+            padding: 20px 16px; /* Restores comfortable padding inside the box */
+            gap: 16px; 
+        }
         
-        /* 6. Tighten the bottom control bar */
-        .chat-controls { padding: 10px; border-radius: 0; }
+        /* 6. REMOVE PROFILE CIRCLES & WIDEN TEXT */
+        .message-avatar { 
+            display: none !important; /* Hides the profile circles completely on mobile */
+        }
+        
+        .message { 
+            max-width: 90%; /* Leaves a 10% gap so you can tell who is speaking */
+        } 
+        
+        .message-bubble { 
+            padding: 12px 16px; 
+            font-size: 0.95rem; 
+            line-height: 1.5; 
+        }
+
+        /* 7. Native App Bubble Styling (Since avatars are gone) */
+        .bot-message { align-self: flex-start; }
+        .bot-message .message-bubble {
+            border-radius: 16px 16px 16px 4px; /* Creates a little "tail" on the bottom left */
+        }
+        
+        .user-message { align-self: flex-end; }
+        .user-message .message-bubble {
+            border-radius: 16px 16px 4px 16px; /* Creates a little "tail" on the bottom right */
+        }
+        
+        /* Keep lists neat */
+        .message-bubble ul, .message-bubble ol { 
+            padding-left: 20px; 
+            margin-bottom: 8px; 
+        }
+        .message-bubble p { margin-bottom: 8px; }
+        
+        /* 8. Bottom control bar */
+        .chat-controls { padding: 12px; border-radius: 0; }
         .chat-input-area { padding: 6px; border-radius: 16px; }
         .chat-input-area input { font-size: 0.95rem; padding: 8px 4px; }
         

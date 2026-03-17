@@ -13,14 +13,20 @@
     </div>
 
     <div class="search-filter-hub fade-in-up" style="animation-delay: 0.1s;">
+
       <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
         <input type="text" id="searchInput" placeholder="Search prompts, tools, or descriptions...">
         
-        <button type="button" id="voiceSearchBtn" class="voice-search-btn" title="Search by Voice">
-          <i class="fa-solid fa-microphone"></i>
-        </button>
-        
+        <div class="search-actions">
+            <button type="button" id="voiceSearchBtn" class="voice-search-btn" title="Search by Voice">
+              <i class="fa-solid fa-microphone"></i>
+            </button>
+
+            <button type="button" id="aiSearchBtn" class="ai-search-btn" title="Smart AI Search">
+                <i class="fa-solid fa-sparkles"></i>
+            </button>
+        </div>
       </div>
       
       <div class="filter-controls">
@@ -154,6 +160,45 @@
 </section>
 
 <style>
+  /* --- Voice & AI Search Buttons --- */
+  .search-actions {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      gap: 8px; /* Space between the mic and the sparkles */
+      z-index: 10;
+  }
+
+  .voice-search-btn, .ai-search-btn {
+      position: relative; /* Changed from absolute to flow inside the wrapper */
+      top: 0;
+      transform: none; 
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #a1a1aa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .voice-search-btn:hover { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); }
+  .ai-search-btn:hover { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border-color: rgba(6, 182, 212, 0.4); transform: scale(1.08); }
+
+  /* Active / Listening states */
+  .voice-search-btn.listening { background: rgba(239, 68, 68, 0.2); color: #ef4444; border-color: rgba(239, 68, 68, 0.5); animation: pulseMic 1.5s infinite; }
+  .ai-search-btn.active { background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+  .ai-search-btn.loading i { animation: spin 1s linear infinite; }
+  
+  @keyframes pulseMic { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
 
 
   /* --- Voice Search Button Styles --- */
@@ -248,14 +293,65 @@
 
   .search-wrapper { flex: 1; min-width: 250px; position: relative; }
   .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #71717a; }
+  /* 1. Ensure text doesn't hide behind the TWO buttons now */
   .search-wrapper input {
-    width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px; color: #fff; padding: 14px 16px 14px 45px; font-size: 1rem; transition: all 0.3s;
+    width: 100%; 
+    background: rgba(255, 255, 255, 0.03); 
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px; 
+    color: #fff; 
+    /* Increased right padding to 100px to make room for two icons! */
+    padding: 14px 100px 14px 45px; 
+    font-size: 1rem; 
+    transition: all 0.3s;
   }
+  
   .search-wrapper input:focus {
     outline: none; border-color: #8b5cf6; background: rgba(255, 255, 255, 0.06);
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
   }
+
+  /* 2. The Wrapper holding both buttons */
+  .search-actions {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex !important; /* Forces them to sit side-by-side */
+      align-items: center;
+      gap: 8px !important; /* Forces exactly 8px of space between them */
+      z-index: 10;
+  }
+
+  /* 3. Force the buttons to behave and stay inside the wrapper */
+  .search-actions .voice-search-btn, 
+  .search-actions .ai-search-btn {
+      position: relative !important; /* Nukes the old absolute positioning */
+      top: auto !important;
+      right: auto !important;
+      transform: none !important;
+      margin: 0 !important;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #a1a1aa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Hover & Active States */
+  .search-actions .voice-search-btn:hover { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); }
+  .search-actions .ai-search-btn:hover { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border-color: rgba(6, 182, 212, 0.4); transform: scale(1.08); }
+
+  .search-actions .voice-search-btn.listening { background: rgba(239, 68, 68, 0.2); color: #ef4444; border-color: rgba(239, 68, 68, 0.5); animation: pulseMic 1.5s infinite; }
+  .search-actions .ai-search-btn.active { background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+  .search-actions .ai-search-btn.loading i { animation: spin 1s linear infinite; }
 
   .filter-controls { display: flex; gap: 12px; }
   .custom-select-wrapper { position: relative; min-width: 170px; }
@@ -383,8 +479,18 @@
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('category')) categoryFilter.value = urlParams.get('category');
     if (urlParams.get('search')) searchInput.value = urlParams.get('search');
+    // If the URL contains ai=true, automatically trigger the AI Search!
+    if (urlParams.get('ai') === 'true') {
+        setTimeout(() => {
+            const aiBtn = document.getElementById('aiSearchBtn');
+            if (aiBtn) aiBtn.click(); // Simulates a user clicking the sparkles
+        }, 300); // Small delay to let the DOM settle
+    }
 
     function filterAndSortTools() {
+      // NEW LINE: If AI search is currently active, stop the standard search from running!
+      if (window.isAiSearchActive) return; 
+
       const searchTerm = searchInput.value.toLowerCase();
       const selectedCategory = categoryFilter.value;
       const sortBy = sortFilter.value;
@@ -520,5 +626,139 @@
         recognition.start(); // Start listening
       }
     });
+  });
+</script>
+
+
+
+<script type="module">
+  import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.16.0';
+  
+  // Disable local model checks (we fetch from cloud)
+  env.allowLocalModels = false;
+
+  const aiSearchBtn = document.getElementById('aiSearchBtn');
+  const searchInput = document.getElementById('searchInput');
+  const noResultsMsg = document.getElementById('noResults');
+  const toolCards = Array.from(document.querySelectorAll('.tool-card-col'));
+  
+  let extractor = null;
+  let toolEmbeddings = []; 
+  window.isAiSearchActive = false; // Global flag we added to stop standard search
+
+  // Math Function: Cosine Similarity
+  function cosineSimilarity(vecA, vecB) {
+      let dotProduct = 0, normA = 0, normB = 0;
+      for (let i = 0; i < vecA.length; i++) {
+          dotProduct += vecA[i] * vecB[i];
+          normA += vecA[i] * vecA[i];
+          normB += vecB[i] * vecB[i];
+      }
+      if (normA === 0 || normB === 0) return 0;
+      return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+  }
+
+  // Load Model and "Read" the page
+  async function loadAiModel() {
+      if (window.isAiSearchActive) return;
+      
+      aiSearchBtn.classList.add('loading');
+      searchInput.placeholder = "Downloading Neural Network (22MB)...";
+
+      try {
+          extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+          searchInput.placeholder = "Reading all tools to understand them...";
+          
+          toolEmbeddings = [];
+          // Ask AI to calculate the mathematical meaning of every card
+          for (let card of toolCards) {
+              const title = card.getAttribute('data-name');
+              const desc = card.getAttribute('data-desc');
+              const category = card.getAttribute('data-category');
+              const textToEmbed = `${title}. ${category}. ${desc}`;
+              
+              const output = await extractor(textToEmbed, { pooling: 'mean', normalize: true });
+              toolEmbeddings.push({
+                  cardElement: card,
+                  vector: Array.from(output.data)
+              });
+          }
+
+          window.isAiSearchActive = true;
+          aiSearchBtn.classList.remove('loading');
+          aiSearchBtn.classList.add('active');
+          searchInput.placeholder = "Semantic Search active! Describe what you need...";
+          
+      } catch (error) {
+          console.error("AI Load Error:", error);
+          searchInput.placeholder = "Failed to load AI. Standard search active.";
+          aiSearchBtn.classList.remove('loading');
+          window.isAiSearchActive = false;
+      }
+  }
+
+  // --------------------------------------Perform Vector Search
+  async function performSmartSearch(query) {
+      if (!query) {
+          // Show all if empty
+          toolEmbeddings.forEach(item => {
+              item.cardElement.classList.remove('d-none');
+              item.cardElement.style.order = 0;
+          });
+          noResultsMsg.classList.add('d-none');
+          return;
+      }
+
+      const queryOutput = await extractor(query, { pooling: 'mean', normalize: true });
+      const queryVector = Array.from(queryOutput.data);
+
+      const results = toolEmbeddings.map(item => {
+          return { ...item, score: cosineSimilarity(queryVector, item.vector) };
+      });
+
+      results.sort((a, b) => b.score - a.score);
+
+      let visibleCount = 0;
+      results.forEach((item, index) => {
+          // Similarity threshold (Adjust this between 0.2 and 0.4 if needed)
+          if (item.score > 0.25) {
+              item.cardElement.classList.remove('d-none');
+              item.cardElement.style.order = index; // Reorder grid via CSS!
+              visibleCount++;
+          } else {
+              item.cardElement.classList.add('d-none');
+          }
+      });
+
+      noResultsMsg.classList.toggle('d-none', visibleCount > 0);
+  }
+
+
+ // Toggle Button Logic
+ aiSearchBtn.addEventListener('click', async () => {
+        if (!window.isAiSearchActive) {
+            // 1. Load the AI Model
+            await loadAiModel();
+            
+            // 2. 🔥 THE FIX: If there is already text in the box (from a Home page redirect), search it immediately!
+            if (searchInput.value.trim() !== '') {
+                searchInput.placeholder = "Processing AI Search...";
+                await performSmartSearch(searchInput.value);
+            }
+        } else {
+            // Turn AI Off
+            window.isAiSearchActive = false;
+            aiSearchBtn.classList.remove('active');
+            searchInput.placeholder = "Search prompts, tools, or descriptions...";
+            // Re-trigger standard search to reset the board
+            searchInput.dispatchEvent(new Event('input')); 
+        }
+    });
+
+  // Listen to typing
+  searchInput.addEventListener('input', async (e) => {
+      if (window.isAiSearchActive) {
+          await performSmartSearch(e.target.value);
+      }
   });
 </script>

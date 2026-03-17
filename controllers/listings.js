@@ -188,3 +188,56 @@ module.exports.generateChatResponse = async (req, res) => {
         res.status(500).json({ error: "Sorry, my neural network is currently resting. Please try again later!" });
     }
 };
+
+
+
+// --- ---------------------------------AUTO-MAGIC TOOL SUBMISSION ---
+module.exports.autoFill = async (req, res) => {
+    try {
+        const { url } = req.body;
+        if (!url) return res.status(400).json({ error: "URL is required" });
+
+        // 1. Fetch the website's HTML
+        const response = await fetch(url);
+        const html = await response.text();
+        
+        // 2. Strip out scripts, styles, and HTML tags to save Gemini tokens
+        const cleanText = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                              .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+                              .replace(/<[^>]+>/g, ' ')
+                              .substring(0, 15000); // Limit to 15k chars to keep it fast
+
+        // 3. Ask Gemini to extract the data and format it as JSON
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const prompt = `
+        You are an AI data extractor for an AI Tool Directory. Analyze the following website text and extract the details of the AI tool.
+        
+        CRITICAL RULES:
+        1. You MUST return ONLY a raw JSON object. Do not use markdown formatting, backticks, or conversational text.
+        2. IF the website does NOT appear to be an actual AI tool (e.g., it is a domain parking page, an auction, or broken), return EXACTLY this JSON: {"error": "Not an AI tool"}
+        3. IF it is a valid AI tool, use this EXACT structure:
+        {
+            "name": "Name of the tool",
+            "description": "A concise, engaging 2-3 sentence description. Do not mention that you extracted this from a website.",
+            "category": "Pick ONE best match from: Text Generation, Image Generation, Video Editing, Code Assistant, Productivity, Chatbot, Voice AI, Other",
+            "features": "Feature 1, Feature 2, Feature 3"
+        }
+
+        Website Text:
+        ${cleanText}
+        `;
+
+        const result = await model.generateContent(prompt);
+        let responseText = result.response.text();
+        
+        // Clean up potential markdown blocks if Gemini accidentally includes them
+        responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        
+        const toolData = JSON.parse(responseText);
+        res.json(toolData);
+
+    } catch (error) {
+        console.error("Auto-Fill Error:", error);
+        res.status(500).json({ error: "Could not analyze the website. Please fill manually." });
+    }
+};

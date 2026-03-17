@@ -40,6 +40,9 @@ router.post("/chatbot/ask", listingController.generateChatResponse);
 // compare route
 router.get("/listings/compare", listingController.compare);
 
+// autofill route
+router.post("/listings/autofill", listingController.autoFill);
+
 // show route
 router
 .get("/listings/:id", validateListing, wrapAsync(listingController.show))

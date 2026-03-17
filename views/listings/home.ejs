@@ -193,7 +193,6 @@
             .section-header { flex-direction: column; align-items: flex-start; gap: 10px; }
             .tools-section { padding: 60px 20px; }
         }
-        /* --- 6. MOBILE FIXES & RESPONSIVENESS --- */
        /* --- 6. MOBILE FIXES & RESPONSIVENESS --- */
        @media (max-width: 768px) {
             /* 1. Fix the Hero gap */
@@ -215,16 +214,54 @@
             }
 
             /* 2. Scale down the search bar slightly */
+            /* --- NEW: Search Actions & Buttons for Home Page --- */
             .search-container input {
-                padding: 16px 60px 16px 45px;
-                font-size: 1rem;
-                border-radius: 20px;
+                padding-right: 100px !important; /* Prevents text from hiding under the 2 buttons */
             }
 
-            .search-container > i.fa-magnifying-glass {
-                left: 18px;
-                font-size: 1.1rem;
+            .search-actions {
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                display: flex !important;
+                align-items: center;
+                gap: 8px !important;
+                z-index: 10;
             }
+
+            .search-actions .voice-search-btn, 
+            .search-actions .ai-search-btn {
+                position: relative !important;
+                top: auto !important;
+                right: auto !important;
+                transform: none !important;
+                margin: 0 !important;
+                width: 38px;
+                height: 38px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: #a1a1aa;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+
+            .search-actions .voice-search-btn:hover { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); }
+            .search-actions .ai-search-btn:hover { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border-color: rgba(6, 182, 212, 0.4); transform: scale(1.08); }
+
+            .search-actions .voice-search-btn.listening { background: rgba(239, 68, 68, 0.2); color: #ef4444; border-color: rgba(239, 68, 68, 0.5); animation: pulseMic 1.5s infinite; }
+            .search-actions .ai-search-btn.active { background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+            
+            @keyframes pulseMic { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+                    .search-container > i.fa-magnifying-glass {
+                        left: 18px;
+                        font-size: 1.1rem;
+                    }
 
             .voice-search-btn {
                 width: 36px;
@@ -272,7 +309,7 @@
         }
         
 
-        /* ==========================================================================
+/* ==========================================================================
    PREMIUM SEARCH BAR & VOICE ASSISTANT UI
    ========================================================================== */
 
@@ -288,8 +325,8 @@
 /* 2. The Input Field */
 .search-container input {
     width: 100%; 
-    /* 56px left padding for the mag-glass, 75px right padding so text doesn't hit the mic button! */
-    padding: 22px 75px 22px 56px; 
+    /* 56px left padding, 100px right padding so text doesn't hit the TWO buttons! */
+    padding: 22px 100px 22px 56px; 
     background: rgba(15, 15, 20, 0.5); 
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px; 
@@ -302,93 +339,70 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
-.search-container input::placeholder {
-    color: #71717a;
-    font-weight: 400;
-    transition: opacity 0.3s ease;
-}
-
-/* 3. Input Focus & Hover States */
-.search-container input:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.15);
-}
-
+.search-container input::placeholder { color: #71717a; font-weight: 400; transition: opacity 0.3s ease; }
+.search-container input:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.15); }
 .search-container input:focus {
-    outline: none; 
-    background: rgba(10, 10, 15, 0.8);
-    border-color: var(--accent-secondary); 
-    box-shadow: 
-        0 0 0 1px var(--accent-secondary), 
-        0 20px 50px rgba(0, 0, 0, 0.6), 
-        0 0 40px rgba(168, 85, 247, 0.15); 
+    outline: none; background: rgba(10, 10, 15, 0.8); border-color: var(--accent-secondary); 
+    box-shadow: 0 0 0 1px var(--accent-secondary), 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(168, 85, 247, 0.15); 
     transform: translateY(-2px);
 }
+.search-container input:focus::placeholder { opacity: 0.5; }
 
-.search-container input:focus::placeholder {
-    opacity: 0.5;
-}
-
-/* 4. The Left Magnifying Glass Icon */
+/* 3. The Left Magnifying Glass Icon */
 .search-container > i.fa-magnifying-glass {
-    position: absolute; 
-    left: 24px; 
-    top: 50%; 
-    transform: translateY(-50%);
-    color: #71717a; 
-    font-size: 1.2rem;
-    transition: color 0.4s ease, transform 0.4s ease;
-    pointer-events: none; 
-    z-index: 2;
+    position: absolute; left: 24px; top: 50%; transform: translateY(-50%);
+    color: #71717a; font-size: 1.2rem; transition: color 0.4s ease, transform 0.4s ease;
+    pointer-events: none; z-index: 2;
 }
+.search-container:focus-within > i.fa-magnifying-glass { color: var(--accent-secondary); transform: translateY(-50%) scale(1.1); }
 
-/* Animate the mag-glass when the user clicks the input */
-.search-container:focus-within > i.fa-magnifying-glass {
-    color: var(--accent-secondary);
-    transform: translateY(-50%) scale(1.1);
-}
-
-/* 5. The Right Voice Search Button */
-.voice-search-btn {
+/* 4. Action Buttons Wrapper (Mic & Sparkles) */
+.search-actions {
     position: absolute;
     right: 12px;
     top: 50%;
     transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+}
+
+/* 5. The Buttons */
+.search-actions .voice-search-btn, 
+.search-actions .ai-search-btn {
+    position: relative;
+    width: 44px; 
+    height: 44px;
+    border-radius: 50%;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #a1a1aa;
-    width: 44px; /* Perfectly sized for touch/clicking */
-    height: 44px;
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.1rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 10;
 }
 
-.voice-search-btn:hover {
-    background: rgba(168, 85, 247, 0.15);
-    color: #d8b4fe; /* Bright purple text */
-    border-color: rgba(168, 85, 247, 0.4);
-    transform: translateY(-50%) scale(1.08); /* Pops slightly on hover */
-}
+/* Hover States */
+.search-actions .voice-search-btn:hover { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; border-color: rgba(168, 85, 247, 0.4); transform: scale(1.08); }
+.search-actions .ai-search-btn:hover { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border-color: rgba(6, 182, 212, 0.4); transform: scale(1.08); }
 
-/* 6. The "Actively Listening" State */
-.voice-search-btn.listening {
-    background: rgba(239, 68, 68, 0.2); /* Red tint */
-    color: #ef4444;
-    border-color: rgba(239, 68, 68, 0.5);
-    animation: pulseMic 1.5s infinite;
-}
+/* Active States */
+.search-actions .voice-search-btn.listening { background: rgba(239, 68, 68, 0.2); color: #ef4444; border-color: rgba(239, 68, 68, 0.5); animation: pulseMic 1.5s infinite; }
+.search-actions .ai-search-btn.active { background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
 
-@keyframes pulseMic {
-    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-    70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+@keyframes pulseMic { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+/* Mobile Adjustments for Buttons */
+@media (max-width: 768px) {
+    .search-actions .voice-search-btn, .search-actions .ai-search-btn {
+        width: 36px; height: 36px; font-size: 1rem;
+    }
 }
+</style>
  </style>
 
 
@@ -416,9 +430,14 @@
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="homeSearchInput" placeholder="Search prompts, tools, or categories...">
                 
-                <button type="button" id="homeVoiceSearchBtn" class="voice-search-btn" title="Search by Voice">
-                    <i class="fa-solid fa-microphone"></i>
-                </button>
+                <div class="search-actions">
+                    <button type="button" id="homeVoiceSearchBtn" class="voice-search-btn" title="Search by Voice">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <button type="button" id="homeAiSearchBtn" class="ai-search-btn" title="Smart AI Search">
+                        <i class="fa-solid fa-sparkles"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="categories">
@@ -562,5 +581,104 @@ const homeVoiceBtn = document.getElementById('homeVoiceSearchBtn');
             }
         
     </script>
+
+    <!-- SMART SEARCH LOGIC -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const homeSearchInput = document.getElementById('homeSearchInput');
+        const homeVoiceBtn = document.getElementById('homeVoiceSearchBtn');
+        const homeAiBtn = document.getElementById('homeAiSearchBtn');
+        
+        let isAiMode = false; // Tracks if the user wants Smart Search
+
+        // --- 1. Category Redirection ---
+        document.querySelectorAll('.category-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                window.location.href = `/home/listings?category=${encodeURIComponent(category)}`;
+            });
+        });
+
+        // --- 2. AI Mode Toggle ---
+        if (homeAiBtn && homeSearchInput) {
+            homeAiBtn.addEventListener('click', () => {
+                isAiMode = !isAiMode;
+                if (isAiMode) {
+                    homeAiBtn.classList.add('active');
+                    homeSearchInput.placeholder = "AI Search: Describe what you want to achieve...";
+                    homeSearchInput.focus();
+                } else {
+                    homeAiBtn.classList.remove('active');
+                    homeSearchInput.placeholder = "Search prompts, tools, or categories...";
+                }
+            });
+        }
+
+        // --- 3. Text Search Redirection ---
+        if(homeSearchInput) {
+            homeSearchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value.trim() !== '') {
+                    const query = encodeURIComponent(this.value);
+                    // If AI mode is on, add &ai=true to the URL!
+                    const aiParam = isAiMode ? '&ai=true' : '';
+                    window.location.href = `/home/listings?search=${query}${aiParam}`;
+                }
+            });
+        }
+
+        // --- 4. VOICE SEARCH LOGIC ---
+        const micIcon = homeVoiceBtn ? homeVoiceBtn.querySelector('i') : null;
+
+        if (homeVoiceBtn && homeSearchInput) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                homeVoiceBtn.style.display = 'none';
+            } else {
+                const recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = function() {
+                    homeVoiceBtn.classList.add('listening');
+                    homeSearchInput.placeholder = "Listening... Speak now";
+                    micIcon.classList.replace('fa-microphone', 'fa-ear-listen');
+                };
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    const query = encodeURIComponent(transcript);
+                    
+                    // Pass the AI parameter if the sparkles were active!
+                    const aiParam = isAiMode ? '&ai=true' : '';
+                    window.location.href = `/home/listings?search=${query}${aiParam}`;
+                };
+
+                recognition.onend = function() {
+                    homeVoiceBtn.classList.remove('listening');
+                    homeSearchInput.placeholder = isAiMode ? "AI Search: Describe what you want to achieve..." : "Search prompts, tools, or categories...";
+                    micIcon.classList.replace('fa-ear-listen', 'fa-microphone');
+                };
+
+                recognition.onerror = function(event) {
+                    homeVoiceBtn.classList.remove('listening');
+                    homeSearchInput.placeholder = "Microphone error or denied.";
+                    setTimeout(() => {
+                        homeSearchInput.placeholder = isAiMode ? "AI Search: Describe what you want to achieve..." : "Search prompts, tools, or categories...";
+                    }, 3000);
+                };
+
+                homeVoiceBtn.addEventListener('click', () => {
+                    if (homeVoiceBtn.classList.contains('listening')) {
+                        recognition.stop();
+                    } else {
+                        recognition.start();
+                    }
+                });
+            }
+        }
+    });
+</script>
 </body>
 </html>
