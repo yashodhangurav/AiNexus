@@ -22,6 +22,14 @@ router.get("/", validateListing,wrapAsync(listingController.home));
 // index route
 router.get("/listings", validateListing,wrapAsync(listingController.index));
 
+
+
+
+
+
+// Put this near the top of your routes!
+router.get("/listings/upgrade-database", listingController.generateMissingEmbeddings);
+
 // guide route
 router.get("/guide", listingController.guide);
 
@@ -42,6 +50,9 @@ router.get("/listings/compare", listingController.compare);
 
 // autofill route
 router.post("/listings/autofill", listingController.autoFill);
+
+// Put this ABOVE the /:id route!
+router.get("/listings/smart-search", listingController.smartSearch);
 
 // show route
 router

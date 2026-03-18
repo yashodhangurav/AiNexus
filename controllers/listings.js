@@ -40,6 +40,7 @@ module.exports.show = async(req,res)=>{
     res.render("listings/show.ejs", {listing})
 };
 
+// -------------------------------------------------------------------------CREATE LISTING---------------------------------------------------
 module.exports.createListing = async (req, res, next) => {
     try {
         const listingData = req.body.listing;
@@ -73,17 +74,32 @@ module.exports.createListing = async (req, res, next) => {
         // 4. Assign the logged-in user 
         newListing.submittedBy = req.user._id; 
 
-        // 5. Cloudinary Upload Logic (Just like your old code!)
+        // 5. Cloudinary Upload Logic 
         if (req.file) {
             let url = req.file.path;
             let filename = req.file.filename;
             newListing.logo = { url, filename }; 
         }
 
-        // 6. Save to database
+        // =======================================================================
+        // 6. 🌟 THE NEW AI MAGIC: GENERATE VECTOR EMBEDDING
+        // =======================================================================
+        // Combine the text so Gemini can understand everything about this tool
+        const featuresText = newListing.features ? newListing.features.join(', ') : '';
+        const textToEmbed = `${newListing.name}. Category: ${newListing.category}. Description: ${newListing.description}. Features: ${featuresText}`;
+        
+        // Ask Gemini to turn that text into a 768-dimension math array
+        const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
+        const result = await model.embedContent(textToEmbed);
+        
+        // Save the math array into your new database field!
+        newListing.embedding = result.embedding.values;
+        // =======================================================================
+
+        // 7. Save to database
         await newListing.save();
 
-        req.flash("success", "New AI Tool is created!");
+        req.flash("success", "New AI Tool added with Smart Search Data!");
         res.redirect("/home/listings");
 
     } catch (err) {
@@ -92,6 +108,11 @@ module.exports.createListing = async (req, res, next) => {
         res.redirect("/home/listings/new");
     }
 };
+
+
+
+
+
 
 module.exports.edit = async(req,res)=>{
     let {id} = req.params;
@@ -239,5 +260,95 @@ module.exports.autoFill = async (req, res) => {
     } catch (error) {
         console.error("Auto-Fill Error:", error);
         res.status(500).json({ error: "Could not analyze the website. Please fill manually." });
+    }
+};
+
+
+
+
+   // 6. 🌟 THE NEW AI MAGIC: GENERATE VECTOR EMBEDDING
+
+module.exports.smartSearch = async (req, res) => {
+    try {
+        const { query } = req.query;
+        if (!query) return res.json([]);
+
+        // 1. Convert the user's search text into a math vector
+        const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
+        const queryResult = await model.embedContent(query);
+        const queryVector = queryResult.embedding.values;
+
+        // 2. Perform the blazing-fast Vector Search directly in MongoDB!
+        const results = await Listing.aggregate([
+            {
+                $vectorSearch: {
+                    index: "vector_index", // Use whatever name you gave the index in Step 3 (usually "default" or "vector_index")
+                    path: "embedding",
+                    queryVector: queryVector,
+                    numCandidates: 100, // Looks at the 100 closest matches
+                    limit: 10 // Only returns the top 10 best matches
+                }
+            },
+            {
+                // We only send back the necessary data to keep the internet payload tiny
+                $project: {
+                    name: 1, description: 1, category: 1, logo: 1, pricingModel: 1, 
+                    score: { $meta: "vectorSearchScore" } // Shows us how confident the AI is!
+                }
+            }
+        ]);
+
+        res.json(results);
+
+    } catch (error) {
+        console.error("Vector Search Error:", error);
+        res.status(500).json({ error: "Search failed" });
+    }
+};
+
+
+
+
+
+
+
+
+
+
+// --- ONE-TIME MIGRATION SCRIPT ---
+module.exports.generateMissingEmbeddings = async (req, res) => {
+    try {
+        // Find all tools that DO NOT have an embedding yet
+        const listingsWithoutEmbeddings = await Listing.find({ embedding: { $exists: false } });
+        
+        if (listingsWithoutEmbeddings.length === 0) {
+            return res.send("All tools already have embeddings! You are good to go.");
+        }
+
+        const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
+        let updatedCount = 0;
+
+        // Loop through them one by one
+        for (let listing of listingsWithoutEmbeddings) {
+            const featuresText = listing.features ? listing.features.join(', ') : '';
+            const textToEmbed = `${listing.name}. Category: ${listing.category}. Description: ${listing.description}. Features: ${featuresText}`;
+            
+            // Generate the math
+            const result = await model.embedContent(textToEmbed);
+            
+            // Save it to the tool
+            listing.embedding = result.embedding.values;
+            await listing.save();
+            updatedCount++;
+            
+            // Pause for 1 second so we don't hit Gemini API rate limits!
+            await new Promise(resolve => setTimeout(resolve, 1000)); 
+        }
+
+        res.send(`Successfully generated AI math for ${updatedCount} old tools! Your database is fully upgraded.`);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error updating old tools.");
     }
 };

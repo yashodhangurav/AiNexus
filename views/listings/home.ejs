@@ -326,7 +326,7 @@
 .search-container input {
     width: 100%; 
     /* 56px left padding, 100px right padding so text doesn't hit the TWO buttons! */
-    padding: 22px 100px 22px 56px; 
+    padding: 22px 60px 22px 56px;
     background: rgba(15, 15, 20, 0.5); 
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px; 
@@ -403,7 +403,6 @@
     }
 }
 </style>
- </style>
 
 
 
@@ -428,16 +427,13 @@
             
             <div class="search-container">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="homeSearchInput" placeholder="Search prompts, tools, or categories...">
+                <input type="text" id="homeSearchInput" placeholder="Describe what you want to achieve with AI...">
                 
                 <div class="search-actions">
                     <button type="button" id="homeVoiceSearchBtn" class="voice-search-btn" title="Search by Voice">
                         <i class="fa-solid fa-microphone"></i>
                     </button>
-                    <button type="button" id="homeAiSearchBtn" class="ai-search-btn" title="Smart AI Search">
-                        <i class="fa-solid fa-sparkles"></i>
-                    </button>
-                </div>
+                    </div>
             </div>
 
             <div class="categories">
@@ -503,28 +499,9 @@
         </section>
     </main>
 
+
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Category Redirection
-            document.querySelectorAll('.category-pill').forEach(pill => {
-                pill.addEventListener('click', function() {
-                    const category = this.getAttribute('data-category');
-                    window.location.href = `/home/listings?category=${encodeURIComponent(category)}`;
-                });
-            });
-
-            // Search Redirection
-            const homeSearchInput = document.getElementById('homeSearchInput');
-            if(homeSearchInput) {
-                homeSearchInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter' && this.value.trim() !== '') {
-                        window.location.href = `/home/listings?search=${encodeURIComponent(this.value)}`;
-                    }
-                });
-            }
-        });
-
-
 
 // --- VOICE SEARCH LOGIC (Home Page) ---
 const homeVoiceBtn = document.getElementById('homeVoiceSearchBtn');
@@ -582,103 +559,83 @@ const homeVoiceBtn = document.getElementById('homeVoiceSearchBtn');
         
     </script>
 
-    <!-- SMART SEARCH LOGIC -->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const homeSearchInput = document.getElementById('homeSearchInput');
-        const homeVoiceBtn = document.getElementById('homeVoiceSearchBtn');
-        const homeAiBtn = document.getElementById('homeAiSearchBtn');
-        
-        let isAiMode = false; // Tracks if the user wants Smart Search
 
-        // --- 1. Category Redirection ---
-        document.querySelectorAll('.category-pill').forEach(pill => {
-            pill.addEventListener('click', function() {
-                const category = this.getAttribute('data-category');
-                window.location.href = `/home/listings?category=${encodeURIComponent(category)}`;
+   <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const homeSearchInput = document.getElementById('homeSearchInput');
+            const homeVoiceBtn = document.getElementById('homeVoiceSearchBtn');
+            const micIcon = homeVoiceBtn ? homeVoiceBtn.querySelector('i') : null;
+
+            // --- 1. Category Redirection ---
+            document.querySelectorAll('.category-pill').forEach(pill => {
+                pill.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    window.location.href = `/home/listings?category=${encodeURIComponent(category)}`;
+                });
             });
-        });
 
-        // --- 2. AI Mode Toggle ---
-        if (homeAiBtn && homeSearchInput) {
-            homeAiBtn.addEventListener('click', () => {
-                isAiMode = !isAiMode;
-                if (isAiMode) {
-                    homeAiBtn.classList.add('active');
-                    homeSearchInput.placeholder = "AI Search: Describe what you want to achieve...";
-                    homeSearchInput.focus();
-                } else {
-                    homeAiBtn.classList.remove('active');
-                    homeSearchInput.placeholder = "Search prompts, tools, or categories...";
-                }
-            });
-        }
-
-        // --- 3. Text Search Redirection ---
-        if(homeSearchInput) {
-            homeSearchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && this.value.trim() !== '') {
-                    const query = encodeURIComponent(this.value);
-                    // If AI mode is on, add &ai=true to the URL!
-                    const aiParam = isAiMode ? '&ai=true' : '';
-                    window.location.href = `/home/listings?search=${query}${aiParam}`;
-                }
-            });
-        }
-
-        // --- 4. VOICE SEARCH LOGIC ---
-        const micIcon = homeVoiceBtn ? homeVoiceBtn.querySelector('i') : null;
-
-        if (homeVoiceBtn && homeSearchInput) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            
-            if (!SpeechRecognition) {
-                homeVoiceBtn.style.display = 'none';
-            } else {
-                const recognition = new SpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = false;
-                recognition.lang = 'en-US';
-
-                recognition.onstart = function() {
-                    homeVoiceBtn.classList.add('listening');
-                    homeSearchInput.placeholder = "Listening... Speak now";
-                    micIcon.classList.replace('fa-microphone', 'fa-ear-listen');
-                };
-
-                recognition.onresult = function(event) {
-                    const transcript = event.results[0][0].transcript;
-                    const query = encodeURIComponent(transcript);
-                    
-                    // Pass the AI parameter if the sparkles were active!
-                    const aiParam = isAiMode ? '&ai=true' : '';
-                    window.location.href = `/home/listings?search=${query}${aiParam}`;
-                };
-
-                recognition.onend = function() {
-                    homeVoiceBtn.classList.remove('listening');
-                    homeSearchInput.placeholder = isAiMode ? "AI Search: Describe what you want to achieve..." : "Search prompts, tools, or categories...";
-                    micIcon.classList.replace('fa-ear-listen', 'fa-microphone');
-                };
-
-                recognition.onerror = function(event) {
-                    homeVoiceBtn.classList.remove('listening');
-                    homeSearchInput.placeholder = "Microphone error or denied.";
-                    setTimeout(() => {
-                        homeSearchInput.placeholder = isAiMode ? "AI Search: Describe what you want to achieve..." : "Search prompts, tools, or categories...";
-                    }, 3000);
-                };
-
-                homeVoiceBtn.addEventListener('click', () => {
-                    if (homeVoiceBtn.classList.contains('listening')) {
-                        recognition.stop();
-                    } else {
-                        recognition.start();
+            // --- 2. Text Search (Auto-triggers AI Cloud Search on Explore Page) ---
+            if(homeSearchInput) {
+                homeSearchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && this.value.trim() !== '') {
+                        const query = encodeURIComponent(this.value.trim());
+                        // Permanently appends &ai=true to tell the next page to use Vector Search!
+                        window.location.href = `/home/listings?search=${query}&ai=true`;
                     }
                 });
             }
-        }
-    });
-</script>
+
+            // --- 3. Premium Voice Search Logic ---
+            if (homeVoiceBtn && homeSearchInput) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                
+                if (!SpeechRecognition) {
+                    homeVoiceBtn.style.display = 'none'; // Hide if browser doesn't support mic
+                } else {
+                    const recognition = new SpeechRecognition();
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    recognition.lang = 'en-US';
+
+                    recognition.onstart = function() {
+                        homeVoiceBtn.classList.add('listening');
+                        homeSearchInput.placeholder = "Listening... Speak now";
+                        micIcon.classList.replace('fa-microphone', 'fa-ear-listen');
+                    };
+
+                    recognition.onresult = function(event) {
+                        const transcript = event.results[0][0].transcript;
+                        const query = encodeURIComponent(transcript.trim());
+                        
+                        // Voice search also instantly redirects with the AI flag!
+                        window.location.href = `/home/listings?search=${query}&ai=true`;
+                    };
+
+                    recognition.onend = function() {
+                        homeVoiceBtn.classList.remove('listening');
+                        homeSearchInput.placeholder = "Describe what you want to achieve with AI...";
+                        micIcon.classList.replace('fa-ear-listen', 'fa-microphone');
+                    };
+
+                    recognition.onerror = function(event) {
+                        console.error("Voice search error:", event.error);
+                        homeVoiceBtn.classList.remove('listening');
+                        homeSearchInput.placeholder = "Microphone error or denied.";
+                        setTimeout(() => {
+                            homeSearchInput.placeholder = "Describe what you want to achieve with AI...";
+                        }, 3000);
+                    };
+
+                    homeVoiceBtn.addEventListener('click', () => {
+                        if (homeVoiceBtn.classList.contains('listening')) {
+                            recognition.stop();
+                        } else {
+                            recognition.start();
+                        }
+                    });
+                }
+            }
+        });
+    </script>
 </body>
 </html>

@@ -112,6 +112,10 @@ const listingSchema = new Schema(
       default: false,
     },
 
+    
+    embedding: {
+      type: [Number], // An array of numbers
+    },
     launchDate: {
       type: Date,
     },

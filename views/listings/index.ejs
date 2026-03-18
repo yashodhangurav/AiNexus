@@ -19,14 +19,10 @@
         <input type="text" id="searchInput" placeholder="Search prompts, tools, or descriptions...">
         
         <div class="search-actions">
-            <button type="button" id="voiceSearchBtn" class="voice-search-btn" title="Search by Voice">
-              <i class="fa-solid fa-microphone"></i>
-            </button>
-
-            <button type="button" id="aiSearchBtn" class="ai-search-btn" title="Smart AI Search">
-                <i class="fa-solid fa-sparkles"></i>
-            </button>
-        </div>
+          <button type="button" id="voiceSearchBtn" class="voice-search-btn" title="Search by Voice">
+            <i class="fa-solid fa-microphone"></i>
+          </button>
+      </div>
       </div>
       
       <div class="filter-controls">
@@ -190,7 +186,7 @@
   }
 
   .voice-search-btn:hover { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); }
-  .ai-search-btn:hover { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border-color: rgba(6, 182, 212, 0.4); transform: scale(1.08); }
+  
 
   /* Active / Listening states */
   .voice-search-btn.listening { background: rgba(239, 68, 68, 0.2); color: #ef4444; border-color: rgba(239, 68, 68, 0.5); animation: pulseMic 1.5s infinite; }
@@ -347,7 +343,7 @@
 
   /* Hover & Active States */
   .search-actions .voice-search-btn:hover { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); }
-  .search-actions .ai-search-btn:hover { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border-color: rgba(6, 182, 212, 0.4); transform: scale(1.08); }
+  .search-actions 
 
   .search-actions .voice-search-btn.listening { background: rgba(239, 68, 68, 0.2); color: #ef4444; border-color: rgba(239, 68, 68, 0.5); animation: pulseMic 1.5s infinite; }
   .search-actions .ai-search-btn.active { background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
@@ -452,114 +448,11 @@
   }
 </style>
 
+<!-- ----------------------------------------------------SCRIPTS------------------------------------- -->
+ 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- 1. Spotlight Hover Effect Logic ---
-    const cards = document.querySelectorAll('.spotlight-card');
-    cards.forEach(card => {
-        card.addEventListener('mousemove', e => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            card.style.setProperty('--mouse-x', `${x}px`);
-            card.style.setProperty('--mouse-y', `${y}px`);
-        });
-    });
 
-    // --- 2. Live Search, Filter, and Sort Logic ---
-    const searchInput = document.getElementById('searchInput');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const sortFilter = document.getElementById('sortFilter');
-    const toolsGrid = document.getElementById('toolsGrid');
-    const noResultsMsg = document.getElementById('noResults');
-    const toolCards = Array.from(document.querySelectorAll('.tool-card-col'));
-
-    // Check URL parameters (if navigating from the Home page)
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('category')) categoryFilter.value = urlParams.get('category');
-    if (urlParams.get('search')) searchInput.value = urlParams.get('search');
-    // If the URL contains ai=true, automatically trigger the AI Search!
-    if (urlParams.get('ai') === 'true') {
-        setTimeout(() => {
-            const aiBtn = document.getElementById('aiSearchBtn');
-            if (aiBtn) aiBtn.click(); // Simulates a user clicking the sparkles
-        }, 300); // Small delay to let the DOM settle
-    }
-
-    function filterAndSortTools() {
-      // NEW LINE: If AI search is currently active, stop the standard search from running!
-      if (window.isAiSearchActive) return; 
-
-      const searchTerm = searchInput.value.toLowerCase();
-      const selectedCategory = categoryFilter.value;
-      const sortBy = sortFilter.value;
-
-      let visibleCount = 0;
-      let visibleCards = [];
-
-      // Phase 1: Filter
-      toolCards.forEach(card => {
-        const name = card.getAttribute('data-name');
-        const desc = card.getAttribute('data-desc');
-        const category = card.getAttribute('data-category');
-
-        const matchesSearch = name.includes(searchTerm) || desc.includes(searchTerm);
-        const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
-
-        if (matchesSearch && matchesCategory) {
-          card.classList.remove('d-none');
-          visibleCards.push(card);
-          visibleCount++;
-        } else {
-          card.classList.add('d-none');
-        }
-      });
-
-      // Phase 2: Sort
-      visibleCards.sort((a, b) => {
-        const nameA = a.getAttribute('data-name');
-        const nameB = b.getAttribute('data-name');
-        const dateA = parseInt(a.getAttribute('data-date'));
-        const dateB = parseInt(b.getAttribute('data-date'));
-        const ratingA = parseFloat(a.getAttribute('data-rating')) || 0;
-        const ratingB = parseFloat(b.getAttribute('data-rating')) || 0;
-
-        if (sortBy === 'highest-rated') return ratingB - ratingA; // 5.0 to 0.0
-        if (sortBy === 'a-z') return nameA.localeCompare(nameB);
-        if (sortBy === 'z-a') return nameB.localeCompare(nameA);
-        if (sortBy === 'newest') return dateB - dateA; 
-        if (sortBy === 'oldest') return dateA - dateB;
-      });
-
-      // Phase 3: Re-append to DOM in sorted order
-      visibleCards.forEach(card => toolsGrid.appendChild(card));
-
-      // Phase 4: Toggle Empty State
-      noResultsMsg.classList.toggle('d-none', visibleCount > 0);
-    }
-
-    // Attach listeners
-    searchInput.addEventListener('input', filterAndSortTools);
-    categoryFilter.addEventListener('change', filterAndSortTools);
-    sortFilter.addEventListener('change', filterAndSortTools);
-
-    // Run once on load to apply any URL params
-    filterAndSortTools();
-  });
-
-  // Helper for the empty state button
-  function resetFilters() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('categoryFilter').value = 'all';
-    document.getElementById('sortFilter').value = 'highest-rated';
-    document.getElementById('searchInput').dispatchEvent(new Event('input'));
-  }
-
-
-
-
-  // --------------------------VOICE SEARCH BUTTON-----------------------------
+  // --------------------------------------------------------------VOICE SEARCH BUTTON-----------------------------
   document.addEventListener('DOMContentLoaded', () => {
     const voiceSearchBtn = document.getElementById('voiceSearchBtn');
     const searchInput = document.getElementById('searchInput');
@@ -627,138 +520,204 @@
       }
     });
   });
+
+  // --- ON LOAD: Check if Home Page sent us here with AI mode! ---
+  // const urlParams = new URLSearchParams(window.location.search);
+  
 </script>
 
 
 
-<script type="module">
-  import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.16.0';
-  
-  // Disable local model checks (we fetch from cloud)
-  env.allowLocalModels = false;
 
-  const aiSearchBtn = document.getElementById('aiSearchBtn');
-  const searchInput = document.getElementById('searchInput');
-  const noResultsMsg = document.getElementById('noResults');
-  const toolCards = Array.from(document.querySelectorAll('.tool-card-col'));
-  
-  let extractor = null;
-  let toolEmbeddings = []; 
-  window.isAiSearchActive = false; // Global flag we added to stop standard search
 
-  // Math Function: Cosine Similarity
-  function cosineSimilarity(vecA, vecB) {
-      let dotProduct = 0, normA = 0, normB = 0;
-      for (let i = 0; i < vecA.length; i++) {
-          dotProduct += vecA[i] * vecB[i];
-          normA += vecA[i] * vecA[i];
-          normB += vecB[i] * vecB[i];
-      }
-      if (normA === 0 || normB === 0) return 0;
-      return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-  }
 
-  // Load Model and "Read" the page
-  async function loadAiModel() {
-      if (window.isAiSearchActive) return;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
       
-      aiSearchBtn.classList.add('loading');
-      searchInput.placeholder = "Downloading Neural Network (22MB)...";
-
-      try {
-          extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
-          searchInput.placeholder = "Reading all tools to understand them...";
-          
-          toolEmbeddings = [];
-          // Ask AI to calculate the mathematical meaning of every card
-          for (let card of toolCards) {
-              const title = card.getAttribute('data-name');
-              const desc = card.getAttribute('data-desc');
-              const category = card.getAttribute('data-category');
-              const textToEmbed = `${title}. ${category}. ${desc}`;
+      // --- 1. Spotlight Hover Effect ---
+      const cards = document.querySelectorAll('.spotlight-card');
+      cards.forEach(card => {
+          card.addEventListener('mousemove', e => {
+              const rect = card.getBoundingClientRect();
+              card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+              card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+          });
+      });
+  
+      // --- 2. DOM Elements ---
+      const searchInput = document.getElementById('searchInput');
+      const categoryFilter = document.getElementById('categoryFilter');
+      const sortFilter = document.getElementById('sortFilter');
+      const toolsGrid = document.getElementById('toolsGrid');
+      const noResultsMsg = document.getElementById('noResults');
+      const toolCards = Array.from(document.querySelectorAll('.tool-card-col'));
+      
+      let debounceTimer;
+  
+      // --- 3. The Master Search Function ---
+      async function runSearch() {
+          const query = searchInput.value.trim().toLowerCase();
+          const selectedCategory = categoryFilter.value;
+          const sortBy = sortFilter.value;
+  
+          // Step 1: Hide all cards initially to prevent ghosting
+          toolCards.forEach(card => card.classList.add('d-none'));
+          noResultsMsg.classList.add('d-none');
+  
+          let visibleCount = 0;
+  
+          // ==========================================
+          // SCENARIO A: AI CLOUD SEARCH (User is typing)
+          // ==========================================
+          if (query.length > 0) {
+              searchInput.placeholder = "✨ AI is thinking...";
               
-              const output = await extractor(textToEmbed, { pooling: 'mean', normalize: true });
-              toolEmbeddings.push({
-                  cardElement: card,
-                  vector: Array.from(output.data)
+              try {
+                  // Ping the MongoDB Atlas Backend
+                  const response = await fetch(`/home/listings/smart-search?query=${encodeURIComponent(query)}`);
+                  if (!response.ok) throw new Error("Backend connection failed");
+                  
+                  const aiResults = await response.json();
+                  
+                  // Match AI results to the HTML cards
+                  aiResults.forEach((item, index) => {
+                      const matchedCard = toolCards.find(card => card.getAttribute('data-name') === item.name.toLowerCase());
+                      
+                      // Respect the Category dropdown even during AI search!
+                      const matchesCategory = selectedCategory === 'all' || matchedCard.getAttribute('data-category') === selectedCategory;
+                      
+                      if (matchedCard && item.score > 0.05 && matchesCategory) {
+                          matchedCard.classList.remove('d-none');
+                          matchedCard.style.order = index; // AI decides the exact order
+                          visibleCount++;
+                      }
+                  });
+              } catch (error) {
+                  console.error("AI Search Failed:", error);
+                  noResultsMsg.innerHTML = `<div class="empty-icon"><i class="fa-solid fa-triangle-exclamation text-danger"></i></div><h4>Connection Error</h4><p>Failed to reach MongoDB Vector Search.</p>`;
+              }
+              searchInput.placeholder = "Describe what you want to achieve with AI...";
+          } 
+          
+          // ==========================================
+          // SCENARIO B: STANDARD FILTERING (Search bar is empty)
+          // ==========================================
+          else {
+              let visibleCards = [];
+              toolCards.forEach(card => {
+                  const category = card.getAttribute('data-category');
+                  if (selectedCategory === 'all' || category === selectedCategory) {
+                      card.classList.remove('d-none');
+                      visibleCards.push(card);
+                      visibleCount++;
+                  }
+              });
+  
+              // Apply standard sorting (Highest Rated, Newest, etc.)
+              visibleCards.sort((a, b) => {
+                  const nameA = a.getAttribute('data-name');
+                  const nameB = b.getAttribute('data-name');
+                  const dateA = parseInt(a.getAttribute('data-date'));
+                  const dateB = parseInt(b.getAttribute('data-date'));
+                  const ratingA = parseFloat(a.getAttribute('data-rating')) || 0;
+                  const ratingB = parseFloat(b.getAttribute('data-rating')) || 0;
+  
+                  if (sortBy === 'highest-rated') return ratingB - ratingA;
+                  if (sortBy === 'a-z') return nameA.localeCompare(nameB);
+                  if (sortBy === 'z-a') return nameB.localeCompare(nameA);
+                  if (sortBy === 'newest') return dateB - dateA; 
+                  if (sortBy === 'oldest') return dateA - dateB;
+              });
+  
+              visibleCards.forEach((card, index) => {
+                  card.style.order = index;
               });
           }
-
-          window.isAiSearchActive = true;
-          aiSearchBtn.classList.remove('loading');
-          aiSearchBtn.classList.add('active');
-          searchInput.placeholder = "Semantic Search active! Describe what you need...";
-          
-      } catch (error) {
-          console.error("AI Load Error:", error);
-          searchInput.placeholder = "Failed to load AI. Standard search active.";
-          aiSearchBtn.classList.remove('loading');
-          window.isAiSearchActive = false;
-      }
-  }
-
-  // --------------------------------------Perform Vector Search
-  async function performSmartSearch(query) {
-      if (!query) {
-          // Show all if empty
-          toolEmbeddings.forEach(item => {
-              item.cardElement.classList.remove('d-none');
-              item.cardElement.style.order = 0;
-          });
-          noResultsMsg.classList.add('d-none');
-          return;
-      }
-
-      const queryOutput = await extractor(query, { pooling: 'mean', normalize: true });
-      const queryVector = Array.from(queryOutput.data);
-
-      const results = toolEmbeddings.map(item => {
-          return { ...item, score: cosineSimilarity(queryVector, item.vector) };
-      });
-
-      results.sort((a, b) => b.score - a.score);
-
-      let visibleCount = 0;
-      results.forEach((item, index) => {
-          // Similarity threshold (Adjust this between 0.2 and 0.4 if needed)
-          if (item.score > 0.25) {
-              item.cardElement.classList.remove('d-none');
-              item.cardElement.style.order = index; // Reorder grid via CSS!
-              visibleCount++;
-          } else {
-              item.cardElement.classList.add('d-none');
+  
+          // --- Handle "No Results" Message ---
+          if (visibleCount === 0 && !noResultsMsg.classList.contains('text-danger')) {
+              noResultsMsg.innerHTML = `<div class="empty-icon"><i class="fa-solid fa-ghost"></i></div><h4>No AI tools found</h4><p>Try adjusting your search or category filter.</p><button class="btn-glass-sm mt-3" onclick="resetFilters()">Clear Filters</button>`;
+              noResultsMsg.classList.remove('d-none');
           }
-      });
-
-      noResultsMsg.classList.toggle('d-none', visibleCount > 0);
-  }
-
-
- // Toggle Button Logic
- aiSearchBtn.addEventListener('click', async () => {
-        if (!window.isAiSearchActive) {
-            // 1. Load the AI Model
-            await loadAiModel();
-            
-            // 2. 🔥 THE FIX: If there is already text in the box (from a Home page redirect), search it immediately!
-            if (searchInput.value.trim() !== '') {
-                searchInput.placeholder = "Processing AI Search...";
-                await performSmartSearch(searchInput.value);
-            }
-        } else {
-            // Turn AI Off
-            window.isAiSearchActive = false;
-            aiSearchBtn.classList.remove('active');
-            searchInput.placeholder = "Search prompts, tools, or descriptions...";
-            // Re-trigger standard search to reset the board
-            searchInput.dispatchEvent(new Event('input')); 
-        }
-    });
-
-  // Listen to typing
-  searchInput.addEventListener('input', async (e) => {
-      if (window.isAiSearchActive) {
-          await performSmartSearch(e.target.value);
       }
+  
+      // --- 4. Event Listeners ---
+      searchInput.addEventListener('input', () => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(runSearch, 300); // 300ms Debounce to save server costs!
+      });
+      categoryFilter.addEventListener('change', runSearch);
+      sortFilter.addEventListener('change', runSearch);
+  
+      // --- 5. Voice Search Integration ---
+      const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+      const micIcon = voiceSearchBtn ? voiceSearchBtn.querySelector('i') : null;
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      
+      if (SpeechRecognition && voiceSearchBtn) {
+          const recognition = new SpeechRecognition();
+          recognition.continuous = false;
+          recognition.interimResults = false;
+          recognition.lang = 'en-US';
+  
+          recognition.onstart = () => {
+              voiceSearchBtn.classList.add('listening');
+              searchInput.placeholder = "Listening... Speak now";
+              micIcon.classList.replace('fa-microphone', 'fa-ear-listen');
+          };
+          recognition.onresult = (event) => {
+              searchInput.value = event.results[0][0].transcript;
+              runSearch(); // Instantly trigger the master search
+          };
+          recognition.onend = () => {
+              voiceSearchBtn.classList.remove('listening');
+              searchInput.placeholder = "Describe what you want to achieve with AI...";
+              micIcon.classList.replace('fa-ear-listen', 'fa-microphone');
+          };
+          recognition.onerror = () => {
+              voiceSearchBtn.classList.remove('listening');
+              searchInput.placeholder = "Microphone error or denied.";
+              setTimeout(() => searchInput.placeholder = "Describe what you want to achieve with AI...", 3000);
+          };
+          voiceSearchBtn.addEventListener('click', () => {
+              voiceSearchBtn.classList.contains('listening') ? recognition.stop() : recognition.start();
+          });
+      } else if (voiceSearchBtn) {
+          voiceSearchBtn.style.display = 'none'; // Hide mic if browser doesn't support it
+      }
+  
+      // --- 6. Auto-Boot from Home Page URL ---
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('category')) categoryFilter.value = urlParams.get('category');
+      if (urlParams.get('search')) searchInput.value = urlParams.get('search');
+      
+      // Run exactly once on load to handle filters or Home Page redirects
+      runSearch(); 
   });
-</script>
+  
+  // --- Helper: Clear Filters Button ---
+  window.resetFilters = function() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('categoryFilter').value = 'all';
+      document.getElementById('sortFilter').value = 'highest-rated';
+      document.getElementById('searchInput').dispatchEvent(new Event('input'));
+  };
+  </script>
