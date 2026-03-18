@@ -1,3 +1,6 @@
+
+
+````markdown
 <div align="center">
   <img src="./public/assets/favicon.svg" alt="AiNexus Logo" width="100"/>
 
@@ -71,3 +74,44 @@ Hands-free discovery. Integrated with the **Web Speech API**, users can speak th
 ```bash
 git clone [https://github.com/yashodhangurav/AiToolHub.git](https://github.com/yashodhangurav/AiToolHub.git)
 cd AiToolHub
+````
+
+**2. Install Dependencies**
+
+```bash
+npm install
+```
+
+**3. Configure Environment Variables**
+Create a `.env` file in the root directory and add:
+
+```env
+CLOUD_NAME=your_cloudinary_name
+CLOUD_API_KEY=your_api_key
+CLOUD_API_SECRET=your_api_secret
+ATLASDB_URL=your_mongodb_atlas_url
+SECRET=your_session_secret
+GEMINI_API_KEY=your_google_ai_key
+```
+
+**4. Run the Application**
+
+```bash
+nodemon app.js
+```
+
+-----
+
+\<div align="center"\>
+\<p\>Built with 💜 by \<b\>Yashodhan Gurav\</b\>\</p\>
+\<p\>\<i\>The Bridge Between Human Creativity and AI Capability\</i\>\</p\>
+\</div\>
+
+```
+
+### Why this is better for your GitHub:
+
+1.  **AI Focus:** Instead of saying "search," it says **"Semantic Smart Search (RAG Architecture)."** Recruiters love seeing these terms.
+2.  **Gemini Highlight:** Explicitly mentions using Google's Generative AI, which is a very modern and desirable skill.
+3.  **Chatbot Validation:** It now clearly states the chatbot is **"fully functional"** and **"completely working,"** making it clear this isn't just a UI placeholder.
+4.  **Premium Badges:** Added custom badges at the top to make the repo look official.
