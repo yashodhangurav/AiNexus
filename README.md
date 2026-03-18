@@ -1,6 +1,4 @@
 
-
-````markdown
 <div align="center">
   <img src="./public/assets/favicon.svg" alt="AiNexus Logo" width="100"/>
 
