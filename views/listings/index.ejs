@@ -78,6 +78,10 @@
           
           <div class="spotlight-card h-100 fade-in-up-stagger">
             <div class="card-inner">
+
+
+
+
               
               <div class="card-top-row">
                 <div class="tool-icon-wrapper">
@@ -85,17 +89,39 @@
                     src="<%= listing.logo && listing.logo.url ? listing.logo.url : 'https://placehold.co/200x200/1e1b4b/a855f7?text=AI' %>" 
                     alt="<%= listing.name %> logo" loading="lazy">
                 </div>
-                <div class="card-badges text-end">
-                  <% if(avgRating >= 4.5 && reviewCount > 0) { %>
-                    <span class="top-rated-badge mb-2 d-inline-block"><i class="fa-solid fa-trophy me-1"></i> Top Rated</span>
-                  <% } %>
-                  <div>
-                    <span class="pricing-pill <%= listing.pricingModel === 'Free' ? 'free-tier' : 'paid-tier' %>">
-                      <i class="fa-solid fa-tag me-1"></i> <%= listing.pricingModel || 'Unknown' %>
-                    </span>
+                
+                <div class="d-flex align-items-start gap-2">
+                  <div class="card-badges text-end">
+                    <% if(avgRating >= 4.5 && reviewCount > 0) { %>
+                      <span class="top-rated-badge mb-2 d-inline-block"><i class="fa-solid fa-trophy me-1"></i> Top Rated</span>
+                    <% } %>
+                    <div>
+                      <span class="pricing-pill <%= listing.pricingModel === 'Free' ? 'free-tier' : 'paid-tier' %>">
+                        <i class="fa-solid fa-tag me-1"></i> <%= listing.pricingModel || 'Unknown' %>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="save-btn-wrapper">
+                    <button class="btn-save-tool d-flex align-items-center justify-content-center" data-id="<%= listing._id %>">
+                        <% 
+                            let isSaved = false;
+                            /* locals.currUser prevents EJS crashes when logged out! */
+                            if (locals.currUser && locals.currUser.savedListings) {
+                                isSaved = locals.currUser.savedListings.some(id => id.toString() === listing._id.toString());
+                            }
+                        %>
+                        <i class="<%= isSaved ? 'fa-solid text-danger' : 'fa-regular' %> fa-heart"></i>
+                    </button>
                   </div>
                 </div>
               </div>
+
+
+
+
+
+
 
               <div class="card-content flex-grow-1">
                 <div class="d-flex justify-content-between align-items-center mb-1">
@@ -446,6 +472,29 @@
     .filter-controls { width: 100%; flex-wrap: wrap; }
     .custom-select-wrapper { flex: 1; min-width: 140px; }
   }
+
+  /* --- Save/Heart Button Styles --- */
+  .btn-save-tool {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        color: #a1a1aa;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        /* Ensure it doesn't shrink when long badges wrap */
+        flex-shrink: 0; 
+    }
+    .btn-save-tool:hover { 
+        background: rgba(239, 68, 68, 0.15); 
+        color: #ef4444; 
+        border-color: rgba(239, 68, 68, 0.3); 
+        transform: scale(1.08);
+    }
+    .btn-save-tool i.text-danger { 
+        color: #ef4444; 
+    }
 </style>
 
 <!-- ----------------------------------------------------SCRIPTS------------------------------------- -->
@@ -526,24 +575,6 @@
   // const urlParams = new URLSearchParams(window.location.search);
   
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -712,8 +743,72 @@
       
       // Run exactly once on load to handle filters or Home Page redirects
       runSearch(); 
+
+      
+
+
+
+
+
+
+      // ====================================================================
+      // --- 7. NEW: SAVE / HEART BUTTON AJAX LOGIC ---
+      // ====================================================================
+      const saveButtons = document.querySelectorAll('.btn-save-tool');
+      
+      saveButtons.forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+              e.preventDefault(); 
+              e.stopPropagation(); 
+
+              const listingId = btn.getAttribute('data-id');
+              const icon = btn.querySelector('i');
+
+              // Visual feedback immediately
+              const originalClass = icon.className;
+              icon.className = "fa-solid fa-spinner fa-spin text-muted"; 
+
+              try {
+                  // Ping your backend route
+                  const response = await fetch(`/home/listings/${listingId}/toggle-save`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                  // If they aren't logged in, Passport will usually redirect them to /login
+                  if (response.redirected) {
+                      window.location.href = response.url;
+                      return;
+                  }
+
+                  const data = await response.json();
+
+                  if (data.success) {
+                      // Visually toggle the heart!
+                      if (data.isSaved) {
+                          icon.className = 'fa-solid fa-heart text-danger';
+                      } else {
+                          icon.className = 'fa-regular fa-heart';
+                      }
+                  } else {
+                      icon.className = originalClass; // Revert if error
+                      alert(data.message || "Something went wrong.");
+                  }
+
+              } catch (error) {
+                  console.error("Error saving tool:", error);
+                  icon.className = originalClass; // Revert if error
+              }
+          });
+      });
+      
+
+   // <-- This is the closing tag for DOMContentLoaded
   });
   
+
+
+
   // --- Helper: Clear Filters Button ---
   window.resetFilters = function() {
       document.getElementById('searchInput').value = '';
@@ -721,4 +816,5 @@
       document.getElementById('sortFilter').value = 'highest-rated';
       document.getElementById('searchInput').dispatchEvent(new Event('input'));
   };
+
   </script>

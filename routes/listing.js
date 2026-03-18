@@ -94,8 +94,8 @@ router.delete("/listings/:id",
     
 
 
- 
-    // router.post("/listings/:id/toggle-save", isLoggedIn, wrapAsync(listingController.toggleSaveListing));
+// Inside routes/listing.js
+router.post("/listings/:id/toggle-save", isLoggedIn, wrapAsync(listingController.toggleSaveListing));
    
 
 module.exports = router;

@@ -26,6 +26,8 @@ app.use(methodOverride("_method"));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 
+
+
 // session related
 const session = require("express-session");
 const MongoStore = require('connect-mongo');

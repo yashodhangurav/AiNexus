@@ -55,27 +55,11 @@ module.exports.logout = (req,res, next)=>{
 
 
 
-
-module.exports.toggleSaveListing = async (req, res) => {
-    try {
-        const { id } = req.params;
-        // Find the currently logged-in user
-        const user = await User.findById(req.user._id);
-
-        // Check if the tool is already in their saved array
-        if (user.savedListings.includes(id)) {
-            // If yes, remove it (Unsave)
-            user.savedListings.pull(id);
-            await user.save();
-            return res.json({ success: true, isSaved: false, message: "Removed from your stack" });
-        } else {
-            // If no, add it (Save)
-            user.savedListings.push(id);
-            await user.save();
-            return res.json({ success: true, isSaved: true, message: "Added to your stack" });
-        }
-    } catch (err) {
-        console.error("Error toggling save:", err);
-        res.status(500).json({ success: false, message: "Server error" });
-    }
+module.exports.renderProfile = async (req, res) => {
+    // 1. Fetch the user and "populate" the savedListings array with full tool data
+    const user = await User.findById(req.user._id).populate("savedListings");
+    
+    // 2. Render the profile page, passing the populated user object
+    res.render("users/profile.ejs", { user });
 };
+

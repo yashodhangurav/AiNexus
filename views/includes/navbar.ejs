@@ -43,15 +43,23 @@
       
       <div class="d-flex flex-column flex-lg-row align-items-center gap-3 auth-container mt-3 mt-lg-0">
         <% if(!currUser) { %>
-          <a href="/login" class="nav-link-btn login-link">Log In</a>
-          <a href="/signup" class="btn-glow">
-            <span>Sign Up</span>
-            <div class="glow-effect"></div>
-          </a>
+          <div class="auth-group">
+            <a href="/login" class="btn-glass-link">
+              <span>Log In</span>
+            </a>
+            <a href="/signup" class="btn-aurora-glow">
+              <span>Get Started</span>
+              <div class="aurora-blur"></div>
+            </a>
+          </div>
         <% } else { %>
-          <div class="user-profile-btn">
-            <span class="text-white me-3">Welcome Back</span>
-            <a href="/logout" class="btn-outline-danger">Log Out</a>
+          <div class="user-nav-actions d-flex align-items-center gap-2">
+            <a class="nav-link profile-pill" href="/profile">
+               <i class="fa-solid fa-layer-group me-2"></i><b>My AI Stack</b>
+            </a>
+            <a href="/logout" class="btn-logout-minimal" title="Log Out">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </a>
           </div>
         <% } %>
       </div>
@@ -61,6 +69,7 @@
 </nav>
 
 <style>
+  
   /* Wrapper to prevent layout jumps */
   body {
     padding-top: 10px; 
@@ -258,6 +267,153 @@
       text-align: center;
     }
   }
+
+
+
+
+/* --- Premium User Actions Wrapper --- */
+.user-nav-actions {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 4px 8px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* --- My AI Stack Pill --- */
+  .profile-pill {
+    background: rgba(99, 102, 241, 0.1) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 50px;
+    padding: 8px 20px !important;
+    font-size: 0.85rem !important;
+    transition: all 0.3s ease;
+  }
+
+  .profile-pill:hover {
+    background: rgba(99, 102, 241, 0.2) !important;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+  }
+
+  /* --- Minimal Logout Button --- */
+  .btn-logout-minimal {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    background: transparent;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .btn-logout-minimal:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    transform: translateX(3px);
+  }
+
+  /* signup and login */
+  /* --- Container for alignment --- */
+.auth-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* --- 1. Minimalist Glass Log In --- */
+.btn-glass-link {
+    text-decoration: none;
+    color: #a1a1aa !important;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.btn-glass-link:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+/* --- 2. Aurora Glow Sign Up --- */
+.btn-aurora-glow {
+    position: relative;
+    text-decoration: none;
+    background: #ffffff;
+    color: #050505 !important;
+    padding: 10px 26px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+.btn-aurora-glow span {
+    position: relative;
+    z-index: 2;
+}
+
+/* Subtle moving glow effect on hover */
+.aurora-blur {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 150%;
+    background: conic-gradient(from 0deg, 
+        transparent, 
+        rgba(99, 102, 241, 0.3), 
+        rgba(168, 85, 247, 0.3), 
+        transparent);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    animation: rotateAurora 4s linear infinite;
+}
+
+.btn-aurora-glow:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+    color: #000 !important;
+}
+
+.btn-aurora-glow:hover .aurora-blur {
+    opacity: 1;
+}
+
+@keyframes rotateAurora {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Mobile responsive tweak */
+@media (max-width: 991px) {
+    .auth-group {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+        padding-top: 15px;
+    }
+    .btn-glass-link, .btn-aurora-glow {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+}
+  
 </style>
 
 

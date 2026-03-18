@@ -33,4 +33,10 @@ router.post("/login",
 
 router.get("/logout", userController.logout )
 
+
+
+const { isLoggedIn } = require("../middleware");
+
+router.get("/profile", isLoggedIn, userController.renderProfile);
+
 module.exports = router;

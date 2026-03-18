@@ -307,8 +307,23 @@ module.exports.smartSearch = async (req, res) => {
 };
 
 
-
-
+// Inside controllers/listings.js
+const User = require("../models/user");
+module.exports.toggleSaveListing = async (req, res) => {
+    const { id } = req.params;
+    const user = await User.findById(req.user._id);
+    
+    const index = user.savedListings.indexOf(id);
+    if (index === -1) {
+        user.savedListings.push(id);
+        await user.save();
+        res.json({ success: true, isSaved: true }); // Frontend needs this!
+    } else {
+        user.savedListings.splice(index, 1);
+        await user.save();
+        res.json({ success: true, isSaved: false }); // Frontend needs this!
+    }
+};
 
 
 
