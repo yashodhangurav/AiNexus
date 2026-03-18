@@ -548,7 +548,6 @@
 
 
 
-
 <script>
   document.addEventListener('DOMContentLoaded', () => {
       
@@ -578,7 +577,14 @@
           const selectedCategory = categoryFilter.value;
           const sortBy = sortFilter.value;
   
-          // Step 1: Hide all cards initially to prevent ghosting
+          // 🔥 UX UPGRADE: Cleanly update the URL in the browser without reloading the page!
+          if (query.length > 0) {
+              window.history.replaceState({}, '', `/home/listings?search=${encodeURIComponent(query)}&ai=true`);
+          } else {
+              window.history.replaceState({}, '', `/home/listings`);
+          }
+  
+          // Step 1: Hide all cards initially
           toolCards.forEach(card => card.classList.add('d-none'));
           noResultsMsg.classList.add('d-none');
   
@@ -591,23 +597,23 @@
               searchInput.placeholder = "✨ AI is thinking...";
               
               try {
-                  // Ping the MongoDB Atlas Backend
                   const response = await fetch(`/home/listings/smart-search?query=${encodeURIComponent(query)}`);
                   if (!response.ok) throw new Error("Backend connection failed");
                   
                   const aiResults = await response.json();
                   
-                  // Match AI results to the HTML cards
                   aiResults.forEach((item, index) => {
                       const matchedCard = toolCards.find(card => card.getAttribute('data-name') === item.name.toLowerCase());
                       
-                      // Respect the Category dropdown even during AI search!
-                      const matchesCategory = selectedCategory === 'all' || matchedCard.getAttribute('data-category') === selectedCategory;
-                      
-                      if (matchedCard && item.score > 0.05 && matchesCategory) {
-                          matchedCard.classList.remove('d-none');
-                          matchedCard.style.order = index; // AI decides the exact order
-                          visibleCount++;
+                      // 🔥 CRASH FIX: Make sure the card exists before checking its category!
+                      if (matchedCard) {
+                          const matchesCategory = selectedCategory === 'all' || matchedCard.getAttribute('data-category') === selectedCategory;
+                          
+                          if (item.score > 0.05 && matchesCategory) {
+                              matchedCard.classList.remove('d-none');
+                              matchedCard.style.order = index; // AI decides the exact order
+                              visibleCount++;
+                          }
                       }
                   });
               } catch (error) {
@@ -631,7 +637,7 @@
                   }
               });
   
-              // Apply standard sorting (Highest Rated, Newest, etc.)
+              // Apply standard sorting
               visibleCards.sort((a, b) => {
                   const nameA = a.getAttribute('data-name');
                   const nameB = b.getAttribute('data-name');
@@ -662,8 +668,18 @@
       // --- 4. Event Listeners ---
       searchInput.addEventListener('input', () => {
           clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(runSearch, 300); // 300ms Debounce to save server costs!
+          debounceTimer = setTimeout(runSearch, 300); // 300ms Debounce
       });
+  
+      // 🔥 PREVENT "ENTER KEY" JUMPS: Catch the Enter key so the page doesn't try to reload!
+      searchInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+              e.preventDefault(); 
+              clearTimeout(debounceTimer);
+              runSearch();
+          }
+      });
+  
       categoryFilter.addEventListener('change', runSearch);
       sortFilter.addEventListener('change', runSearch);
   
