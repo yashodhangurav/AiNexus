@@ -27,13 +27,13 @@ const userSchema = new Schema({
       default: "https://placehold.co/200x200/4CAF50/FFFFFF?text=User",
     },
 
-    favorites: [
+    savedListings: [
       {
-        type: Schema.Types.ObjectId,
-        ref: "Tool",
-      },
-    ],
-    
+          type: Schema.Types.ObjectId,
+          ref: "Listing",
+      }
+  ],
+  
     joinedAt: {
       type: Date,
       default: Date.now,

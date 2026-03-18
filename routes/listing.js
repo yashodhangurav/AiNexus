@@ -24,12 +24,6 @@ router.get("/listings", validateListing,wrapAsync(listingController.index));
 
 
 
-
-
-
-// Put this near the top of your routes!
-router.get("/listings/upgrade-database", listingController.generateMissingEmbeddings);
-
 // guide route
 router.get("/guide", listingController.guide);
 
@@ -100,7 +94,8 @@ router.delete("/listings/:id",
     
 
 
-
+ 
+    // router.post("/listings/:id/toggle-save", isLoggedIn, wrapAsync(listingController.toggleSaveListing));
    
 
 module.exports = router;

@@ -315,40 +315,92 @@ module.exports.smartSearch = async (req, res) => {
 
 
 
-// --- ONE-TIME MIGRATION SCRIPT ---
-module.exports.generateMissingEmbeddings = async (req, res) => {
-    try {
-        // Find all tools that DO NOT have an embedding yet
-        const listingsWithoutEmbeddings = await Listing.find({ embedding: { $exists: false } });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// // --- ONE-TIME MIGRATION SCRIPT ---
+// module.exports.generateMissingEmbeddings = async (req, res) => {
+//     try {
+//         // Find all tools that DO NOT have an embedding yet
+//         const listingsWithoutEmbeddings = await Listing.find({ embedding: { $exists: false } });
         
-        if (listingsWithoutEmbeddings.length === 0) {
-            return res.send("All tools already have embeddings! You are good to go.");
-        }
+//         if (listingsWithoutEmbeddings.length === 0) {
+//             return res.send("All tools already have embeddings! You are good to go.");
+//         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
-        let updatedCount = 0;
+//         const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
+//         let updatedCount = 0;
 
-        // Loop through them one by one
-        for (let listing of listingsWithoutEmbeddings) {
-            const featuresText = listing.features ? listing.features.join(', ') : '';
-            const textToEmbed = `${listing.name}. Category: ${listing.category}. Description: ${listing.description}. Features: ${featuresText}`;
+//         // Loop through them one by one
+//         for (let listing of listingsWithoutEmbeddings) {
+//             const featuresText = listing.features ? listing.features.join(', ') : '';
+//             const textToEmbed = `${listing.name}. Category: ${listing.category}. Description: ${listing.description}. Features: ${featuresText}`;
             
-            // Generate the math
-            const result = await model.embedContent(textToEmbed);
+//             // Generate the math
+//             const result = await model.embedContent(textToEmbed);
             
-            // Save it to the tool
-            listing.embedding = result.embedding.values;
-            await listing.save();
-            updatedCount++;
+//             // Save it to the tool
+//             listing.embedding = result.embedding.values;
+//             await listing.save();
+//             updatedCount++;
             
-            // Pause for 1 second so we don't hit Gemini API rate limits!
-            await new Promise(resolve => setTimeout(resolve, 1000)); 
-        }
+//             // Pause for 1 second so we don't hit Gemini API rate limits!
+//             await new Promise(resolve => setTimeout(resolve, 1000)); 
+//         }
 
-        res.send(`Successfully generated AI math for ${updatedCount} old tools! Your database is fully upgraded.`);
+//         res.send(`Successfully generated AI math for ${updatedCount} old tools! Your database is fully upgraded.`);
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Error updating old tools.");
-    }
-};
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send("Error updating old tools.");
+//     }
+// };
