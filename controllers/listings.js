@@ -7,7 +7,6 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 
 
-
 module.exports.home = async(req,res)=>{
     res.render("listings/home.ejs")
 }
@@ -156,31 +155,57 @@ module.exports.chatbot = (req,res)=>{
 
 
 //--------------------------------------------- Add this to controllers/listings.js -----------------------------------------
+
+const model = genAI.getGenerativeModel({ 
+    model: "gemini-2.5-flash",
+    generationConfig: { thinkingBudget: 100 } // Gives the AI more "brain power"
+});
+
+
 module.exports.compare = async (req, res) => {
-    // Get the tool IDs from the URL (e.g., /compare?tool1=123&tool2=456)
     const { tool1, tool2 } = req.query;
-    
-    // Fetch all listings to populate the dropdown menus (alphabetical order)
     const allListings = await Listing.find({}).sort({ name: 1 });
     
-    let item1 = null;
-    let item2 = null;
+    let item1 = tool1 ? await Listing.findById(tool1).populate('reviews') : null;
+    let item2 = tool2 ? await Listing.findById(tool2).populate('reviews') : null;
 
-    // If IDs are provided in the URL, fetch their full data + reviews
-    if (tool1) {
-        item1 = await Listing.findById(tool1).populate('reviews');
-    }
-    if (tool2) {
-        item2 = await Listing.findById(tool2).populate('reviews');
+    let aiVerdict = null;
+
+    if (item1 && item2) {
+        try {
+            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+            // 🔥 Use Gemini 2.5 Flash - The stable 2026 model
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+            const prompt = `Compare ${item1.name} and ${item2.name}. 
+            Which one is better for a beginner and which is better for a pro? 
+            Pick a definitive winner. Max 40 words.`;
+
+            const result = await model.generateContent(prompt);
+            aiVerdict = result.response.text();
+        } catch (err) {
+            console.error("AI Error:", err);
+            
+            // 🛡️ FALLBACK LOGIC: If AI fails, we manually generate a verdict
+            const avg1 = item1.reviews.length ? (item1.reviews.reduce((s, r) => s + r.rating, 0) / item1.reviews.length) : 0;
+            const avg2 = item2.reviews.length ? (item2.reviews.reduce((s, r) => s + r.rating, 0) / item2.reviews.length) : 0;
+            
+            if (avg1 > avg2) {
+                aiVerdict = `${item1.name} is currently leading in community trust with a higher rating!`;
+            } else if (avg2 > avg1) {
+                aiVerdict = `${item2.name} is the crowd favorite based on recent reviews!`;
+            } else {
+                aiVerdict = "Both tools are neck-and-neck! Choose based on the feature list below.";
+            }
+        }
     }
 
-    // Send everything to the new EJS page
-    res.render("listings/compare.ejs", { allListings, item1, item2, tool1, tool2 });
+    res.render("listings/compare.ejs", { allListings, item1, item2, tool1, tool2, aiVerdict });
 };
 
 
 
-// Handles the API request from the chatbot UI
+// -------------------------------------------------Handles the API request from the chatbot UI-------------------------
 module.exports.generateChatResponse = async (req, res) => {
     try {
         const userMessage = req.body.message;

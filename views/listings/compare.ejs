@@ -5,12 +5,27 @@
     <div class="ambient-glow-comp-2"></div>
 
     <div class="container relative-z">
+
+        <div class="container relative-z">
+    
+            <div class="text-center fade-in-up mb-5">
+                <div class="badge-subtle mb-3 mx-auto">Versus Engine</div>
+                <h1 class="gradient-title">Compare AI Tools</h1>
+            </div>
         
-        <div class="text-center fade-in-up mb-5">
-            <div class="badge-subtle mb-3 mx-auto">Versus Engine</div>
-            <h1 class="gradient-title">Compare AI Tools</h1>
-            <p class="text-muted-custom">Select two platforms below to evaluate their features, pricing, and ratings side-by-side.</p>
-        </div>
+            <% if (typeof aiVerdict !== 'undefined' && aiVerdict) { %>
+                <div class="ai-verdict-outer mb-5 fade-in-up">
+                    <div class="ai-verdict-card">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <div class="ai-icon-pulse">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <span class="ai-label">AiNexus Intelligence Verdict</span>
+                        </div>
+                        <p class="verdict-text"><%= aiVerdict %></p>
+                    </div>
+                </div>
+            <% } %>
 
         <div class="comparison-selector-hub fade-in-up" style="animation-delay: 0.1s;">
             <form action="/home/listings/compare" method="GET" class="w-100" id="compareForm">
@@ -21,7 +36,7 @@
                             <select name="tool1" class="compare-select" id="tool1" onchange="document.getElementById('compareForm').submit()">
                                 <option value="" disabled <%= !tool1 ? 'selected' : '' %>>Select First Tool...</option>
                                 <% for(let list of allListings) { %>
-                                    <option value="<%= list._id %>" <%= tool1 === list._id.toString() ? 'selected' : '' %>>
+                                    <option value="<%= list._id %>" <%= (tool1 && tool1 === list._id.toString()) ? 'selected' : '' %>>
                                         <%= list.name %>
                                     </option>
                                 <% } %>
@@ -31,6 +46,9 @@
 
                     <div class="col-md-auto text-center">
                         <div class="vs-badge">VS</div>
+                        <% if(tool1 || tool2) { %>
+                            <a href="/home/listings/compare" class="reset-link d-block mt-2">Clear All</a>
+                        <% } %>
                     </div>
 
                     <div class="col-md-5">
@@ -38,7 +56,7 @@
                             <select name="tool2" class="compare-select" id="tool2" onchange="document.getElementById('compareForm').submit()">
                                 <option value="" disabled <%= !tool2 ? 'selected' : '' %>>Select Second Tool...</option>
                                 <% for(let list of allListings) { %>
-                                    <option value="<%= list._id %>" <%= tool2 === list._id.toString() ? 'selected' : '' %>>
+                                    <option value="<%= list._id %>" <%= (tool2 && tool2 === list._id.toString()) ? 'selected' : '' %>>
                                         <%= list.name %>
                                     </option>
                                 <% } %>
@@ -51,25 +69,64 @@
         </div>
 
         <% if(item1 || item2) { %>
+            
+            <% 
+                // --- CALCULATION LOGIC MOVED TO TOP FOR GLOBAL ACCESS ---
+                
+                let avg1 = 0, count1 = 0;
+                if(item1) {
+                    count1 = item1.reviews ? item1.reviews.length : 0;
+                    if(count1 > 0) {
+                        let total = 0;
+                        item1.reviews.forEach(r => { if(r && r.rating) total += r.rating; });
+                        avg1 = parseFloat((total / count1).toFixed(1));
+                    }
+                }
+
+                let avg2 = 0, count2 = 0;
+                if(item2) {
+                    count2 = item2.reviews ? item2.reviews.length : 0;
+                    if(count2 > 0) {
+                        let total = 0;
+                        item2.reviews.forEach(r => { if(r && r.rating) total += r.rating; });
+                        avg2 = parseFloat((total / count2).toFixed(1));
+                    }
+                }
+            %>
+
+<% if(locals.aiVerdict) { %>
+    <div class="ai-verdict-wrapper mb-5 fade-in-up">
+        <div class="verdict-card-glow">
+            <div class="verdict-content">
+                <div class="verdict-header-pill">
+                    <i class="fa-solid fa-robot-astronaut me-2"></i>
+                    <span>AiNexus Smart Recommendation</span>
+                </div>
+                <div class="verdict-body mt-3">
+                    <p><%= aiVerdict %></p>
+                </div>
+                <div class="verdict-footer-tag">
+                    <small><i class="fa-solid fa-bolt-lightning me-1"></i> Generated by Gemini 1.5</small>
+                </div>
+            </div>
+        </div>
+    </div>
+<% } %>
+
             <div class="comparison-matrix fade-in-up" style="animation-delay: 0.2s;">
                 <div class="row g-0">
                     
                     <div class="col-md-6 tool-column border-right-subtle">
                         <% if(item1) { %>
-                            
-                            <% 
-                                let avg1 = 0; let count1 = item1.reviews ? item1.reviews.length : 0;
-                                if(count1 > 0) {
-                                    let total = 0;
-                                    item1.reviews.forEach(r => { if(r && r.rating) total += r.rating; });
-                                    avg1 = (total / count1).toFixed(1);
-                                }
-                            %>
-
                             <div class="compare-header">
                                 <img src="<%= item1.logo && item1.logo.url ? item1.logo.url : 'https://placehold.co/200x200/1e1b4b/a855f7?text=AI' %>" alt="<%= item1.name %>">
                                 <h3><%= item1.name %></h3>
-                                <span class="category-pill"><%= item1.category %></span>
+                                
+                                <% if(item2 && count1 > 0 && count2 > 0 && avg1 > avg2) { %>
+                                    <span class="winner-badge"><i class="fa-solid fa-crown"></i> Highest Rated</span>
+                                <% } %>
+
+                                <span class="category-pill d-block mx-auto mt-2" style="width: fit-content;"><%= item1.category %></span>
                             </div>
 
                             <div class="compare-row">
@@ -84,11 +141,21 @@
                                 <div class="review-stars">
                                     <% if(count1 > 0) { %>
                                         <span class="star-rating"><i class="fa-solid fa-star"></i> <%= avg1 %></span>
-                                        <span class="review-count">(<%= count1 %>)</span>
+                                        <span class="review-count">(<%= count1 %> reviews)</span>
                                     <% } else { %>
-                                        <span class="text-muted-custom">No reviews</span>
+                                        <span class="text-muted-custom">No reviews yet</span>
                                     <% } %>
                                 </div>
+                                
+                                <% if(item1 && item2 && count1 > 0 && count2 > 0) { %>
+                                    <div class="rating-comparison-bar mt-3">
+                                        <% let p1 = (avg1 / (avg1 + avg2)) * 100; %>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-fill fill-1" style="width: <%= p1 + '%' %>"></div>
+                                            <div class="progress-fill fill-2" style="width: <%= (100 - p1) + '%' %>"></div>
+                                        </div>
+                                    </div>
+                                <% } %>
                             </div>
 
                             <div class="compare-row description-row">
@@ -111,33 +178,28 @@
 
                             <div class="compare-footer text-center">
                                 <a href="/home/listings/<%= item1._id %>" class="btn-glass-sm w-100 mb-2">Read Reviews</a>
-                                <a href="<%= item1.websiteUrl %>" target="_blank" class="btn-glow-sm w-100">Visit <%= item1.name %> <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></a>
+                                <a href="<%= item1.websiteUrl %>" target="_blank" class="btn-glow-sm w-100">Visit Tool <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></a>
                             </div>
 
                         <% } else { %>
                             <div class="empty-column">
                                 <i class="fa-solid fa-cube empty-icon"></i>
-                                <p>Select a tool above to begin comparison.</p>
+                                <p>Select a tool above to begin.</p>
                             </div>
                         <% } %>
                     </div>
 
                     <div class="col-md-6 tool-column">
                         <% if(item2) { %>
-                            
-                            <% 
-                                let avg2 = 0; let count2 = item2.reviews ? item2.reviews.length : 0;
-                                if(count2 > 0) {
-                                    let total = 0;
-                                    item2.reviews.forEach(r => { if(r && r.rating) total += r.rating; });
-                                    avg2 = (total / count2).toFixed(1);
-                                }
-                            %>
-
                             <div class="compare-header">
                                 <img src="<%= item2.logo && item2.logo.url ? item2.logo.url : 'https://placehold.co/200x200/1e1b4b/a855f7?text=AI' %>" alt="<%= item2.name %>">
                                 <h3><%= item2.name %></h3>
-                                <span class="category-pill"><%= item2.category %></span>
+
+                                <% if(item1 && count1 > 0 && count2 > 0 && avg2 > avg1) { %>
+                                    <span class="winner-badge"><i class="fa-solid fa-crown"></i> Highest Rated</span>
+                                <% } %>
+
+                                <span class="category-pill d-block mx-auto mt-2" style="width: fit-content;"><%= item2.category %></span>
                             </div>
 
                             <div class="compare-row">
@@ -152,11 +214,14 @@
                                 <div class="review-stars">
                                     <% if(count2 > 0) { %>
                                         <span class="star-rating"><i class="fa-solid fa-star"></i> <%= avg2 %></span>
-                                        <span class="review-count">(<%= count2 %>)</span>
+                                        <span class="review-count">(<%= count2 %> reviews)</span>
                                     <% } else { %>
-                                        <span class="text-muted-custom">No reviews</span>
+                                        <span class="text-muted-custom">No reviews yet</span>
                                     <% } %>
                                 </div>
+                                <% if(item1 && item2 && count1 > 0 && count2 > 0) { %>
+                                    <div class="mt-3" style="height: 10px;"></div> 
+                                <% } %>
                             </div>
 
                             <div class="compare-row description-row">
@@ -179,13 +244,13 @@
 
                             <div class="compare-footer text-center">
                                 <a href="/home/listings/<%= item2._id %>" class="btn-glass-sm w-100 mb-2">Read Reviews</a>
-                                <a href="<%= item2.websiteUrl %>" target="_blank" class="btn-glow-sm w-100">Visit <%= item2.name %> <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></a>
+                                <a href="<%= item2.websiteUrl %>" target="_blank" class="btn-glow-sm w-100">Visit Tool <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></a>
                             </div>
 
                         <% } else { %>
                             <div class="empty-column">
                                 <i class="fa-solid fa-cube empty-icon"></i>
-                                <p>Select a tool above to begin comparison.</p>
+                                <p>Select a tool above to begin.</p>
                             </div>
                         <% } %>
                     </div>
@@ -193,9 +258,9 @@
                 </div>
             </div>
         <% } %>
-
     </div>
 </section>
+
 
 <style>
     /* Base Setup */
@@ -306,4 +371,105 @@
         .vs-badge { margin: 15px auto; }
         .gradient-title { font-size: 2.5rem; }
     }
+    .reset-link { color: #71717a; font-size: 0.75rem; text-decoration: none; font-weight: 700; transition: 0.3s; }
+    .reset-link:hover { color: #ef4444; }
+
+
+    .ai-verdict-outer {
+    position: relative;
+    padding: 2px;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px -10px rgba(168, 85, 247, 0.5);
+    overflow: hidden;
+}
+
+.ai-verdict-card {
+    background: #0f1016;
+    border-radius: 22px;
+    padding: 24px;
+    position: relative;
+    z-index: 1;
+}
+
+.ai-icon-pulse {
+    color: #a855f7;
+    font-size: 1.2rem;
+    animation: pulse-purple 2s infinite;
+}
+
+.ai-label {
+    font-weight: 800;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #fff;
+}
+
+.verdict-text {
+    color: #e4e4e7;
+    font-style: italic;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+@keyframes pulse-purple {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+
+
+    .progress-bar-container {
+    height: 8px; 
+    width: 100%; 
+    background: rgba(255,255,255,0.05);
+    border-radius: 20px; 
+    overflow: hidden; 
+    display: flex;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.fill-1 { 
+    background: linear-gradient(90deg, #6366f1, #818cf8); 
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1); 
+}
+
+.fill-2 { 
+    background: linear-gradient(90deg, #a855f7, #c084fc); 
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1); 
+}
+/* Winner Badge Styling */
+.winner-badge {
+    display: inline-block;
+    background: rgba(251, 191, 36, 0.1);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    padding: 2px 10px;
+    border-radius: 50px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    animation: pulseGold 2s infinite;
+}
+
+@keyframes pulseGold {
+    0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(251, 191, 36, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+}
+
+/* Fix for standardizing image sizes in comparison */
+.compare-header img {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    object-fit: contain; /* Prevents logos from stretching! */
+    background: #000;
+    padding: 5px;
+}
+</style>
 </style>
