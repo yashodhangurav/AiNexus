@@ -28,6 +28,13 @@ Unlike traditional directories, **AiNexus** is built on a modern AI architecture
 Our search engine doesn't just match keywords; it understands meaning. Powered by **Google Gemini Embeddings** and **MongoDB Atlas Vector Search**, users can find tools using natural language.
 * *Example:* Searching for "I need help writing a book" will intelligently rank tools like Jasper and ChatGPT, even if the word "book" isn't in their title.
 
+###⚖️ AI-Powered "Versus Engine" (Dynamic RAG Analysis)
+Our comparison module acts as a live consultant rather than a static table. By piping real-time MongoDB document data into the Gemini 2.5 Flash API, the system synthesizes raw features into actionable insights.
+
+Smart Verdicts: The AI reasons through pricing and capability density to declare a "Professional Winner" and a "Beginner's Best Value" instantly.
+
+Winner Glow UI: A dynamic CSS engine that visually pulses and highlights the superior tool based on AI-driven data synthesis and community sentiment.
+
 ### 🤖 Fully Functional AI Nexus-Bot
 A completely integrated, **live conversational assistant**. The AiNexus chatbot helps users navigate the complex landscape of AI, provides real-time recommendations, and explains tool capabilities within a sleek, glassmorphic chat interface.
 
