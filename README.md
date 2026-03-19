@@ -121,7 +121,7 @@ SECRET=your_passport_secret_string
 -----
 
 <div align="center">
-<p>Built with 💜 by <a href="https://www.google.com/search?q=https://github.com/yashodhangurav">Yashodhan Gurav\</a></p>
+<p>Built with 💜 by <a href="https://www.google.com/search?q=https://github.com/yashodhangurav">Yashodhan Gurav</a></p>
 </div>
 
 
