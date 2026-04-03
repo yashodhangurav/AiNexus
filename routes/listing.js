@@ -3,24 +3,24 @@ const router = express.Router();
 const Listing = require("../models/listing.js")
 const wrapAsync = require("../utils/wrapAsync.js");
 const expressError = require("../utils/expressError.js");
-const {listingSchema} = require("../schema.js");
-const {isLoggedIn, isOwner, validateListing} = require("../middleware.js");
+const { listingSchema } = require("../schema.js");
+const { isLoggedIn, isOwner, validateListing } = require("../middleware.js");
 
 
 const listingController = require("../controllers/listings.js");
 
-const multer  = require('multer');
-const {storage} = require("../cloudConfig.js");
+const multer = require('multer');
+const { storage } = require("../cloudConfig.js");
 
 const upload = multer({ storage }); //multer will store files in cloudinary storage
 
 
 
 // home route
-router.get("/", validateListing,wrapAsync(listingController.home));
+router.get("/", validateListing, wrapAsync(listingController.home));
 
 // index route
-router.get("/listings", validateListing,wrapAsync(listingController.index));
+router.get("/listings", validateListing, wrapAsync(listingController.index));
 
 
 
@@ -29,10 +29,10 @@ router.get("/guide", listingController.guide);
 
 
 // New route
-router.get("/listings/new", isLoggedIn, listingController.new )
+router.get("/listings/new", isLoggedIn, listingController.new)
 
 //   chatbot route-------------------------------------------------------------------------------chatbot
-router.get("/chatbot", listingController.chatbot );
+router.get("/chatbot", listingController.chatbot);
 
 // NEW route to handle the actual AI conversation API calls
 router.post("/chatbot/ask", listingController.generateChatResponse);
@@ -42,15 +42,15 @@ router.post("/chatbot/ask", listingController.generateChatResponse);
 // compare route
 router.get("/listings/compare", listingController.compare);
 
-// autofill route
-router.post("/listings/autofill", listingController.autoFill);
+// trending route
+router.get("/listings/trending", listingController.getTrendingTools);
 
 // Put this ABOVE the /:id route!
 router.get("/listings/smart-search", listingController.smartSearch);
 
 // show route
 router
-.get("/listings/:id", validateListing, wrapAsync(listingController.show))
+    .get("/listings/:id", validateListing, wrapAsync(listingController.show))
 
 // In your routes/listings.js file:
 
@@ -71,31 +71,31 @@ router.post('/listings', isLoggedIn, upload.single('listing[logo]'), validateLis
 
 
 // edit route
-router.get("/listings/:id/edit", 
+router.get("/listings/:id/edit",
     isLoggedIn,
-    isOwner, 
+    isOwner,
     wrapAsync(listingController.edit));
 
 
 // update route
-router.put("/listings/:id", 
+router.put("/listings/:id",
     isLoggedIn,
-    isOwner, 
+    isOwner,
     upload.single('listing[imageUrl]'),
     validateListing,
-    wrapAsync (listingController.update));
+    wrapAsync(listingController.update));
 
 // Delete route
 
-router.delete("/listings/:id", 
+router.delete("/listings/:id",
     isLoggedIn,
-    isOwner, 
+    isOwner,
     wrapAsync(listingController.delete));
-    
+
 
 
 // Inside routes/listing.js
 router.post("/listings/:id/toggle-save", isLoggedIn, wrapAsync(listingController.toggleSaveListing));
-   
+
 
 module.exports = router;

@@ -1,0 +1,153 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="trending-container py-5">
+    <div class="header-section text-center mb-5">
+        <h1 class="display-4 fw-bold text-white mb-2">🔥 Trending AI Tools</h1>
+        <p class="text-muted">Real-time insights from Reddit and Hacker News</p>
+        <div class="accent-line mx-auto"></div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <!-- Hot Section -->
+        <div class="col-lg-6">
+            <div class="trend-card glass-card h-100">
+                <div class="card-header-custom d-flex align-items-center gap-3 p-4">
+                    <div class="icon-box hot-icon">
+                        <i class="fa-solid fa-fire-flame-curved"></i>
+                    </div>
+                    <h2 class="h4 mb-0 text-white">Hot This Week</h2>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <% trends.hot.forEach((tool, index)=> { %>
+                            <li class="list-group-item bg-transparent border-white-05 d-flex justify-content-between align-items-center p-4 trend-item">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="rank-badge">#<%= index+1 %></span>
+                                    <span class="tool-name text-white fw-semibold"><%= tool.name %></span>
+                                </div>
+                                <span class="score-pill">
+                                    <i class="fa-solid fa-chart-line me-2"></i><%= tool.score %>
+                                </span>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rising Section -->
+        <div class="col-lg-6">
+            <div class="trend-card glass-card h-100">
+                <div class="card-header-custom d-flex align-items-center gap-3 p-4">
+                    <div class="icon-box rising-icon">
+                        <i class="fa-solid fa-rocket"></i>
+                    </div>
+                    <h2 class="h4 mb-0 text-white">Rising Stars</h2>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <% trends.rising.forEach((tool, index)=> { %>
+                            <li class="list-group-item bg-transparent border-white-05 d-flex justify-content-between align-items-center p-4 trend-item">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="rank-badge rising">#<%= index+1 %></span>
+                                    <span class="tool-name text-white fw-semibold"><%= tool.name %></span>
+                                </div>
+                                <span class="score-pill secondary">
+                                    <i class="fa-solid fa-arrow-trend-up me-2"></i><%= tool.score %>
+                                </span>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .trending-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding-top: 100px !important;
+    }
+
+    .accent-line {
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, #6366f1, #a855f7);
+        border-radius: 2px;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        overflow: hidden;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .glass-card:hover {
+        border-color: rgba(99, 102, 241, 0.4);
+        transform: translateY(-5px);
+    }
+
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .hot-icon {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    .rising-icon {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+    }
+
+    .border-white-05 {
+        border-color: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .trend-item {
+        transition: background 0.2s ease;
+    }
+
+    .trend-item:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .rank-badge {
+        font-size: 0.85rem;
+        background: rgba(255, 255, 255, 0.05);
+        color: #a1a1aa;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-weight: 700;
+    }
+
+    .rank-badge.rising {
+        color: #22c55e;
+    }
+
+    .score-pill {
+        font-size: 0.85rem;
+        background: rgba(99, 102, 241, 0.1);
+        color: #818cf8;
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-weight: 600;
+    }
+
+    .score-pill.secondary {
+        background: rgba(168, 85, 247, 0.1);
+        color: #c084fc;
+    }
+</style>

@@ -1,6 +1,11 @@
 const Listing = require("../models/listing.js")
 const {listingSchema} = require("../schema.js");
 
+const { fetchReddit } = require("../utils/redditFetcher");
+const { fetchHN } = require("../utils/hnFetcher");
+const { processTrends } = require("../utils/trendProcessor");
+const { extractToolNames } = require("../utils/aiExtractor");
+
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 // Initialize Gemini with your API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -154,6 +159,8 @@ module.exports.chatbot = (req,res)=>{
 };
 
 
+
+// --------------------------------------------------COMPARING TWO TOOLS LOGIC------------------------------------------------------
 //--------------------------------------------- Add this to controllers/listings.js -----------------------------------------
 
 const model = genAI.getGenerativeModel({ 
@@ -237,61 +244,9 @@ module.exports.generateChatResponse = async (req, res) => {
 
 
 
-// --- ---------------------------------AUTO-MAGIC TOOL SUBMISSION ---
-module.exports.autoFill = async (req, res) => {
-    try {
-        const { url } = req.body;
-        if (!url) return res.status(400).json({ error: "URL is required" });
-
-        // 1. Fetch the website's HTML
-        const response = await fetch(url);
-        const html = await response.text();
-        
-        // 2. Strip out scripts, styles, and HTML tags to save Gemini tokens
-        const cleanText = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-                              .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-                              .replace(/<[^>]+>/g, ' ')
-                              .substring(0, 15000); // Limit to 15k chars to keep it fast
-
-        // 3. Ask Gemini to extract the data and format it as JSON
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const prompt = `
-        You are an AI data extractor for an AI Tool Directory. Analyze the following website text and extract the details of the AI tool.
-        
-        CRITICAL RULES:
-        1. You MUST return ONLY a raw JSON object. Do not use markdown formatting, backticks, or conversational text.
-        2. IF the website does NOT appear to be an actual AI tool (e.g., it is a domain parking page, an auction, or broken), return EXACTLY this JSON: {"error": "Not an AI tool"}
-        3. IF it is a valid AI tool, use this EXACT structure:
-        {
-            "name": "Name of the tool",
-            "description": "A concise, engaging 2-3 sentence description. Do not mention that you extracted this from a website.",
-            "category": "Pick ONE best match from: Text Generation, Image Generation, Video Editing, Code Assistant, Productivity, Chatbot, Voice AI, Other",
-            "features": "Feature 1, Feature 2, Feature 3"
-        }
-
-        Website Text:
-        ${cleanText}
-        `;
-
-        const result = await model.generateContent(prompt);
-        let responseText = result.response.text();
-        
-        // Clean up potential markdown blocks if Gemini accidentally includes them
-        responseText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-        
-        const toolData = JSON.parse(responseText);
-        res.json(toolData);
-
-    } catch (error) {
-        console.error("Auto-Fill Error:", error);
-        res.status(500).json({ error: "Could not analyze the website. Please fill manually." });
-    }
-};
 
 
-
-
-   // 6. 🌟 THE NEW AI MAGIC: GENERATE VECTOR EMBEDDING
+   // 6. 🌟 THE NEW AI MAGIC: GENERATE VECTOR EMBEDDING (SEARCH MY MEANING rather than EXACT WORD LOGIC)
 
 module.exports.smartSearch = async (req, res) => {
     try {
@@ -351,8 +306,45 @@ module.exports.toggleSaveListing = async (req, res) => {
 };
 
 
+// Inside controllers/listings.js
+const redditFetcher = require("../utils/redditFetcher");
+const hnFetcher = require("../utils/hnFetcher");
+const trendProcessor = require("../utils/trendProcessor");
 
+let trendCache = null;
+let lastFetch = 0;
 
+module.exports.getTrendingTools = async (req, res) => {
+    const now = Date.now();
+
+    // Cache results for 30 minutes to save API calls and AI tokens
+    if (trendCache && (now - lastFetch < 1000 * 60 * 30)) {
+        return res.render("listings/trending.ejs", { trends: trendCache });
+    }
+
+    try {
+        const redditData = await redditFetcher.fetchReddit();
+        const hnData = await hnFetcher.fetchHN();
+
+        const allTitles = [
+            ...redditData.map(p => p.title),
+            ...hnData.map(p => p.title)
+        ].join("\n");
+
+        // 🌟 Use the refined AI Extractor util
+        const toolList = await extractToolNames(allTitles);
+
+        const trends = trendProcessor.processTrends(redditData, hnData, toolList);
+
+        trendCache = trends;
+        lastFetch = now;
+
+        res.render("listings/trending.ejs", { trends });
+    } catch (err) {
+        console.error("Trending Error:", err);
+        res.render("error.ejs", { message: "Failed to load trending tools. Please try again later." });
+    }
+};
 
 
 
